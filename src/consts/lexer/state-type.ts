@@ -35,6 +35,7 @@ export enum StateType {
   ESCAPED_CHAR_END,
 
   SINGLE_QUOTE,
+  SINGLE_QUOTE_CHAR,
   SINGLE_QUOTE_LAST_QUOTE,
   SINGLE_QUOTE_END,
 
@@ -61,9 +62,10 @@ export enum StateType {
   ALPHABETIC_END,
 
   DIGIT_WHOLE,
-  DIGIT_AFTER_E,
-  DIGIT_DECIMAL,
   DIGIT_END,
+
+  DIGIT_DECIMAL,
+  DIGIT_DECIMAL_END,
 }
 
 export const END_STATES = new Set([
@@ -73,6 +75,7 @@ export const END_STATES = new Set([
   StateType.ARITHMETIC_OPERATOR_END,
   StateType.ASSIGNMENT_OPERATOR_END,
   StateType.DIGIT_END,
+  StateType.DIGIT_DECIMAL_END,
   StateType.ALPHABETIC_END,
   StateType.AMPERSAND_END,
   StateType.COMMA_END,

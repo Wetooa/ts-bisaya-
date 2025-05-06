@@ -62,13 +62,13 @@ export function tokenize(input: string): Token[] {
           break;
 
         case StateType.SINGLE_QUOTE_END:
-          tokens.push(createToken(TokenType.STRING, tokenValue));
+          tokens.push(createToken(TokenType.CHAR_LITERAL, tokenValue));
           break;
 
         case StateType.DOUBLE_QUOTE_END:
           const content = tokenValue.substring(1, tokenValue.length - 1);
           if (content === "OO" || content === "DILI") {
-            tokens.push(createToken(TokenType.BOOLEAN_VALUE, content));
+            tokens.push(createToken(TokenType.BOOLEAN_LITERAL, content));
           } else {
             tokens.push(createToken(TokenType.STRING, tokenValue));
           }
@@ -91,7 +91,13 @@ export function tokenize(input: string): Token[] {
           break;
 
         case StateType.DIGIT_END:
-          tokens.push(createToken(TokenType.NUMERIC_LITERAL, tokenValue));
+          tokens.push(createToken(TokenType.WHOLE_NUMERIC_LITERAL, tokenValue));
+          break;
+
+        case StateType.DIGIT_DECIMAL_END:
+          tokens.push(
+            createToken(TokenType.DECIMAL_NUMERIC_LITERAL, tokenValue),
+          );
           break;
 
         case StateType.ALPHABETIC_END:
@@ -121,5 +127,6 @@ export function tokenize(input: string): Token[] {
     }
   }
 
+  tokens.push(createToken(TokenType.EOF, "EOF"));
   return tokens;
 }

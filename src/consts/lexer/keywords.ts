@@ -19,7 +19,7 @@ export const KEYWORDS: Record<string, TokenType> = {
   DILI: TokenType.LOGICAL_OPERATOR,
 
   // Boolean value
-  OO: TokenType.BOOLEAN_VALUE,
+  OO: TokenType.BOOLEAN_LITERAL,
 
   // Loops
   "ALANG SA": TokenType.FOR_LOOP,

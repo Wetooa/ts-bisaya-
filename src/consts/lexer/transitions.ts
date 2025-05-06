@@ -103,9 +103,10 @@ export const transitions: Record<StateType, TransitionFunction> = {
   },
 
   [StateType.ASSIGNMENT_OPERATOR_BEGIN]: (c: string): StateType => {
-    return c === "="
-      ? StateType.ASSIGNMENT_OPERATOR
-      : StateType.ARITHMETIC_OPERATOR_END;
+    if (c === "=") {
+      return StateType.ASSIGNMENT_OPERATOR;
+    }
+    return StateType.ARITHMETIC_OPERATOR_END;
   },
 
   [StateType.ASSIGNMENT_OPERATOR]: () => StateType.ASSIGNMENT_OPERATOR_END,
@@ -133,7 +134,14 @@ export const transitions: Record<StateType, TransitionFunction> = {
   [StateType.SINGLE_QUOTE]: (c: string): StateType => {
     return c === "'"
       ? StateType.SINGLE_QUOTE_LAST_QUOTE
-      : StateType.SINGLE_QUOTE;
+      : StateType.SINGLE_QUOTE_CHAR;
+  },
+
+  [StateType.SINGLE_QUOTE_CHAR]: (c: string): StateType => {
+    if (c === "'") {
+      return StateType.SINGLE_QUOTE_LAST_QUOTE;
+    }
+    throw new UnknownCharacterException();
   },
 
   [StateType.SINGLE_QUOTE_LAST_QUOTE]: () => StateType.SINGLE_QUOTE_END,
@@ -157,6 +165,8 @@ export const transitions: Record<StateType, TransitionFunction> = {
   [StateType.DIGIT_WHOLE]: (c: string): StateType => {
     if (/\d/.test(c)) {
       return StateType.DIGIT_WHOLE;
+    } else if (c === ".") {
+      return StateType.DIGIT_DECIMAL;
     } else if (c == "\n" || isSkippable(c) || isSymbol(c)) {
       return StateType.DIGIT_END;
     } else {
@@ -164,13 +174,13 @@ export const transitions: Record<StateType, TransitionFunction> = {
     }
   },
 
-  // FIX: add these later
-  [StateType.DIGIT_AFTER_E]: function (_c: string): StateType {
-    return StateType.DIGIT_END;
-  },
-
   [StateType.DIGIT_DECIMAL]: function (_c: string): StateType {
-    return StateType.DIGIT_END;
+    if (/\d/.test(_c)) {
+      return StateType.DIGIT_DECIMAL;
+    } else if (_c == "\n" || isSkippable(_c) || isSymbol(_c)) {
+      return StateType.DIGIT_DECIMAL_END;
+    }
+    throw new UnknownCharacterException();
   },
 
   [StateType.NEWLINE_END]: function (_c: string): StateType {
@@ -225,6 +235,9 @@ export const transitions: Record<StateType, TransitionFunction> = {
     return StateType.START;
   },
   [StateType.DIGIT_END]: function (_c: string): StateType {
+    return StateType.START;
+  },
+  [StateType.DIGIT_DECIMAL_END]: function (_c: string): StateType {
     return StateType.START;
   },
 };

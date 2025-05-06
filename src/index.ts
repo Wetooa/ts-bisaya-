@@ -10,6 +10,7 @@ async function repl() {
 
   while (true) {
     const input = await rl.question("> ");
+    console.log("Input:", input);
 
     if (input === "exit") {
       break;

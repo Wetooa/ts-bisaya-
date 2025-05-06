@@ -18,7 +18,7 @@ describe("Lexer", () => {
     expect(tokens[6]?.type).toBe(TokenType.NEWLINE);
     expect(tokens[7]?.type).toBe(TokenType.IDENTIFIER);
     expect(tokens[8]?.type).toBe(TokenType.DATATYPE);
-    expect(tokens[9]?.type).toBe(TokenType.BOOLEAN_VALUE);
+    expect(tokens[9]?.type).toBe(TokenType.BOOLEAN_LITERAL);
     expect(tokens[10]?.type).toBe(TokenType.LOGICAL_OPERATOR);
   });
 
