@@ -6,6 +6,7 @@ export const AST_NODE_TYPES = [
   "VARIABLE_DECLARATION",
   "INPUT_STATEMENT",
   "OUTPUT_STATEMENT",
+  "CODE_BLOCK",
 
   "IF_STATEMENT",
   "FOR_LOOP",
@@ -56,15 +57,29 @@ export interface OutputStatement extends Statement {
   >;
 }
 
+export interface CodeBlock extends Statement {
+  type: "CODE_BLOCK";
+  body: Statement[];
+}
+
 export interface IfStatement extends Statement {
   type: "IF_STATEMENT";
   condition: Expression;
-  body: Statement[];
-  elseIf?: {
+  body: CodeBlock;
+  elseIf: {
     condition: Expression;
-    body: Statement[];
+    body: CodeBlock;
   }[];
-  elseBody?: Statement[];
+  else?: CodeBlock;
+}
+
+export interface ForLoop extends Statement {
+  type: "FOR_LOOP";
+  identifier: string;
+  startValue: Expression;
+  condition: Expression;
+  increment: Expression;
+  body: CodeBlock;
 }
 
 export interface Expression extends Statement {

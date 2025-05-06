@@ -9,6 +9,7 @@ export const TokenType = [
 
   // Control flow tokens
   "CONDITIONAL_DECLARATION",
+  "ELSE_BLOCK_DECLARATION",
   "CODE_BLOCK_DECLARATION",
   "FOR_LOOP_DECLARATION",
 
@@ -34,11 +35,19 @@ export const TokenType = [
   "ARITHMETIC_OPERATOR",
   "ASSIGNMENT_OPERATOR",
 
+  // Increment/Decrement
+  "INCREMENT_OPERATOR",
+  "DECREMENT_OPERATOR",
+
   // Punctuation
   "COMMA",
   "COLON",
   "AMPERSAND",
   "CARRIAGE_RETURN",
+
+  // Curly Symbols
+  "OPEN_CURLY_BRACE",
+  "CLOSE_CURLY_BRACE",
 
   // Literal values
   "STRING",

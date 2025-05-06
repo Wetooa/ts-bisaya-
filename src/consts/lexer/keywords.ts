@@ -11,7 +11,8 @@ export const KEYWORDS: Record<string, TokenType> = {
 
   // Conditional
   KUNG: "CONDITIONAL_DECLARATION", // Conditional block (equivalent to "if")
-  PUNDOK: "CODE_BLOCK_DECLARATION", // Else block (equivalent to "else")
+  PUNDOK: "CODE_BLOCK_DECLARATION", // Code block
+  WALA: "ELSE_BLOCK_DECLARATION", // Else block (equivalent to "else")
 
   // Function declaration keyword
   ALANG: "FOR_LOOP_DECLARATION",

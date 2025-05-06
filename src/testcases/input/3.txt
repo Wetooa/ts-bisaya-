@@ -1,0 +1,19 @@
+SUGOD
+  MUGNA LETRA a_1 = 'n'
+  KUNG (1 == 1)
+  PUNDOK {
+    a_1 = 'a'
+  }
+  KUNG DILI (2 == 2)
+  PUNDOK {
+    a_1 = 'b'
+  }
+  KUNG DILI (3 == 3)
+  PUNDOK {
+    a_1 = 'b'
+  }
+  KUNG WALA
+  PUNDOK { 
+    a_1 = 'c'
+  }
+KATAPUSAN

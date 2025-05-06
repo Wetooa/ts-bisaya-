@@ -217,6 +217,14 @@ export class Tokenizer {
         this.tokens.push(createToken("CLOSE_PARENTHESIS", char));
         this.advance();
         break;
+      case "{":
+        this.tokens.push(createToken("OPEN_CURLY_BRACE", char));
+        this.advance();
+        break;
+      case "}":
+        this.tokens.push(createToken("CLOSE_CURLY_BRACE", char));
+        this.advance();
+        break;
       case ",":
         this.tokens.push(createToken("COMMA", char));
         this.advance();

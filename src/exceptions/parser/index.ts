@@ -41,3 +41,10 @@ export class DatatypeNotFoundException extends ParserException {
     this.name = "DatatypeNotFoundException";
   }
 }
+
+export class InvalidCodeBlocksException extends ParserException {
+  constructor() {
+    super(`Invalid code blocks.`);
+    this.name = "InvalidCodeBlocksException";
+  }
+}

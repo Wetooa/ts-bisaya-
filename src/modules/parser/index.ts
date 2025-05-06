@@ -5,6 +5,7 @@ import {
   DatatypeNotFoundException,
   IdentifierNotFoundException,
   IdentifierRedeclarationException,
+  InvalidCodeBlocksException,
   ParserException,
   UnexpectedTokenException,
 } from "../../exceptions/parser";
@@ -14,8 +15,11 @@ import type {
   BinaryExpression,
   BooleanLiteral,
   CharLiteral,
+  CodeBlock,
   Expression,
+  ForLoop,
   Identifier,
+  IfStatement,
   InputStatement,
   NullLiteral,
   NumericLiteral,
@@ -61,6 +65,9 @@ export class Parser {
   }
 
   private eat() {
+    console.log(
+      `Eating token: ${this.currentToken.type} - ${this.currentToken.value}`,
+    );
     return this.tokens[this.index++] as Token;
   }
 
@@ -103,7 +110,6 @@ export class Parser {
 
     while (!this.isEnd() && this.currentToken.type !== "END_BLOCK") {
       const statement = this.parseStatement();
-      console.log(statement);
       if (statement) {
         program.body.push(statement);
       }
@@ -111,13 +117,6 @@ export class Parser {
 
     if (!this.isRepl) {
       this.expectType("END_BLOCK", "Expected KATAPUSAN to end program");
-
-      // FIX: add logic here if program hasnt ended
-      // if (!this.isEnd()) {
-      //   throw new ParserException(
-      //     "Unexpected end of input, expected program body",
-      //   );
-      // }
     }
 
     return program;
@@ -131,134 +130,158 @@ export class Parser {
         return this.parseInputStatement();
       case "OUTPUT_STATEMENTS":
         return this.parseOutputStatement();
-      // case "CONDITIONAL_DECLARATION":
-      //   return this.parseConditionalStatement();
-      // case "FOR_LOOP_DECLARATION":
-      //   return this.parseForLoopStatement();
+      case "CONDITIONAL_DECLARATION":
+        return this.parseConditionalStatement();
+      case "FOR_LOOP_DECLARATION":
+        return this.parseForLoopStatement();
       default:
         return this.parseExpression();
     }
   }
 
-  // private parseConditionalStatement(): Statement {
-  //   this.expectType(
-  //     "CONDITIONAL_DECLARATION",
-  //     "Expected conditional declaration",
-  //   );
-  //
-  //   // Parse the condition
-  //   const condition = this.parseExpression();
-  //
-  //   // Check if condition is boolean
-  //   if (condition.dataType !== "BOOLEAN") {
-  //     throw new DataTypeMismatchException(condition.dataType, "BOOLEAN");
-  //   }
-  //
-  //   // Parse the body of the if statement
-  //   this.expectType("START_BLOCK", "Expected SUGOD to start conditional block");
-  //
-  //   const ifBlock: Statement[] = [];
-  //
-  //   // Parse statements until we reach an END_BLOCK or CODE_BLOCK_DECLARATION
-  //   while (
-  //     !this.isEnd() &&
-  //     this.currentToken.type !== "END_BLOCK" &&
-  //     this.currentToken.type !== "CODE_BLOCK_DECLARATION"
-  //   ) {
-  //     const statement = this.parseStatement();
-  //     ifBlock.push(statement);
-  //   }
-  //
-  //   let elseBlock: Statement[] = [];
-  //
-  //   // Check if there's an else block
-  //   if (this.currentToken.type === "CODE_BLOCK_DECLARATION") {
-  //     this.eat(); // Consume the PUNDOK token
-  //
-  //     // Parse the else block until END_BLOCK
-  //     while (!this.isEnd() && this.currentToken.type !== "END_BLOCK") {
-  //       const statement = this.parseStatement();
-  //       elseBlock.push(statement);
-  //     }
-  //   }
-  //
-  //   // Ensure we have an END_BLOCK
-  //   this.expectType("END_BLOCK", "Expected KATAPUSAN to end conditional block");
-  //
-  //   return {
-  //     type: "IF_STATEMENT",
-  //     condition,
-  //     ifBlock,
-  //     elseBlock,
-  //   };
-  // }
+  private parseCondition(): Expression {
+    this.expectType("OPEN_PARENTHESIS", "Expected opening parenthesis");
+    const condition = this.parseExpression();
+    if (condition.dataType !== "BOOLEAN") {
+      throw new DataTypeMismatchException(condition.dataType, "BOOLEAN");
+    }
+    this.expectType("CLOSE_PARENTHESIS", "Expected closing parenthesis");
+    this.expectType("NEWLINE", "Expected newline after condition");
+    return condition;
+  }
 
-  // /**
-  //  * Parses a for loop statement (ALANG SA variable = start TO end SUGOD statements KATAPUSAN)
-  //  */
-  // private parseForLoopStatement(): Statement {
-  //   this.expectTypeAndValue(
-  //     "FOR_LOOP_DECLARATION",
-  //     "ALANG",
-  //     "Expected For Loop ALANG",
-  //   );
-  //   this.expectTypeAndValue(
-  //     "FOR_LOOP_DECLARATION",
-  //     "SA",
-  //     "Expected For Loop SA",
-  //   );
-  //
-  //   // Parse the loop variable and initialization
-  //   const variable = this.expectType(
-  //     "IDENTIFIER",
-  //     "Expected identifier for loop variable",
-  //   );
-  //
-  //   this.expectType("ASSIGNMENT_OPERATOR", "Expected assignment operator");
-  //   const startValue = this.parseExpression();
-  //
-  //   // Check that start value is numeric
-  //   if (startValue.dataType !== "INT" && startValue.dataType !== "FLOAT") {
-  //     throw new DataTypeMismatchException(startValue.dataType, "numeric type");
-  //   }
-  //
-  //   // Expect the "TO" keyword (we'll need to add this to keywords and token types)
-  //   // For now, we'll just check for a specific identifier
-  //   const toKeyword = this.expectType("IDENTIFIER", "Expected TO keyword");
-  //   if (toKeyword.value !== "TO") {
-  //     throw new ParserException("Expected TO keyword in for loop");
-  //   }
-  //
-  //   // Parse the end value expression
-  //   const endValue = this.parseExpression();
-  //
-  //   // Check that end value is numeric
-  //   if (endValue.dataType !== "INT" && endValue.dataType !== "FLOAT") {
-  //     throw new DataTypeMismatchException(endValue.dataType, "numeric type");
-  //   }
-  //
-  //   // Parse the body of the for loop
-  //   this.expectType("START_BLOCK", "Expected SUGOD to start for loop block");
-  //
-  //   const body: Statement[] = [];
-  //
-  //   // Parse statements until we reach an END_BLOCK
-  //   while (!this.isEnd() && this.currentToken.type !== "END_BLOCK") {
-  //     const statement = this.parseStatement();
-  //     body.push(statement);
-  //   }
-  //
-  //   // Ensure we have an END_BLOCK
-  //   this.expectType("END_BLOCK", "Expected KATAPUSAN to end for loop block");
-  //
-  //   return {
-  //     type: "FOR_LOOP",
-  //     variable: variable.value,
-  //     startValue,
-  //     endValue,
-  //     body,
-  //   };
-  // }
+  private parseCodeBlock(): CodeBlock {
+    this.expectType(
+      "CODE_BLOCK_DECLARATION",
+      "Expected PUNDOK to start code block",
+    );
+    this.expectType("OPEN_CURLY_BRACE", "Expected opening curly brace");
+
+    const codeBlock: CodeBlock = {
+      type: "CODE_BLOCK",
+      body: [],
+    };
+
+    while (!this.isEnd() && this.currentToken.type !== "CLOSE_CURLY_BRACE") {
+      const statement = this.parseStatement();
+      if (statement) {
+        codeBlock.body.push(statement);
+      }
+    }
+
+    this.expectType("CLOSE_CURLY_BRACE", "Expected closing curly brace");
+    this.expectType("NEWLINE", "Expected newline after code block");
+    return codeBlock;
+  }
+
+  private parseConditionalStatement(): Statement {
+    this.expectType(
+      "CONDITIONAL_DECLARATION",
+      "Expected conditional declaration",
+    );
+
+    const condition = this.parseCondition();
+    const body = this.parseCodeBlock();
+
+    const ifStatement: IfStatement = {
+      type: "IF_STATEMENT",
+      condition,
+      body,
+      elseIf: [],
+    };
+
+    while (
+      !this.isEnd() &&
+      this.currentToken.type === "CONDITIONAL_DECLARATION"
+    ) {
+      this.eat();
+      const currentToken = this.currentToken.type as TokenType;
+
+      if (
+        currentToken === "LOGICAL_OPERATOR" &&
+        this.currentToken.value === "DILI"
+      ) {
+        this.eat();
+        const condition = this.parseCondition();
+        const body = this.parseCodeBlock();
+        ifStatement.elseIf.push({
+          condition,
+          body,
+        });
+        continue;
+      }
+
+      if (currentToken === "ELSE_BLOCK_DECLARATION") {
+        this.eat();
+        this.expectType("NEWLINE", "Expected newline after DILI");
+        ifStatement.else = this.parseCodeBlock();
+        break;
+      }
+    }
+
+    return ifStatement;
+  }
+
+  private parseForLoopStatement(): ForLoop {
+    this.expectTypeAndValue(
+      "FOR_LOOP_DECLARATION",
+      "ALANG",
+      "Expected For Loop ALANG",
+    );
+    this.expectTypeAndValue(
+      "FOR_LOOP_DECLARATION",
+      "SA",
+      "Expected For Loop SA",
+    );
+
+    // Initialization
+    this.expectType(
+      "OPEN_PARENTHESIS",
+      "Expected opening parenthesis for loop",
+    );
+
+    const identifier = this.expectType(
+      "IDENTIFIER",
+      "Expected identifier for loop variable",
+    );
+
+    this.expectType("ASSIGNMENT_OPERATOR", "Expected assignment operator");
+
+    const startValue = this.parseExpression();
+
+    if (startValue.dataType !== "INT" && startValue.dataType !== "FLOAT") {
+      throw new DataTypeMismatchException(startValue.dataType, "numeric type");
+    }
+
+    this.expectType("COMMA", "Expected comma after start value");
+
+    // Condition
+    const condition = this.parseExpression();
+
+    if (condition.dataType !== "BOOLEAN") {
+      throw new DataTypeMismatchException(condition.dataType, "BOOLEAN");
+    }
+
+    this.expectType("COMMA", "Expected comma after condition");
+
+    // Increment
+    const increment = this.parseExpression();
+
+    this.expectType("CLOSE_PARENTHESIS", "Expected closing parenthesis");
+    this.expectType("NEWLINE", "Expected newline after for loop declaration");
+
+    // Body
+    const body = this.parseCodeBlock();
+
+    return {
+      type: "FOR_LOOP",
+      identifier: identifier.value,
+      startValue: startValue,
+      condition: condition,
+      increment: increment,
+      body: body,
+    };
+  }
 
   private parseInputStatement(): InputStatement {
     this.expectType("INPUT_STATEMENTS", "Expected input statement");
@@ -315,6 +338,12 @@ export class Parser {
           break;
         }
 
+        case "CHAR_LITERAL": {
+          const charLiteral = this.expectType("CHAR_LITERAL", "Expected char");
+          result.variables.push({ type: "LITERAL", value: charLiteral.value });
+          break;
+        }
+
         case "BOOLEAN_LITERAL": {
           const booleanLiteral = this.expectType(
             "BOOLEAN_LITERAL",
@@ -328,8 +357,14 @@ export class Parser {
         }
 
         case "CARRIAGE_RETURN": {
-          this.eat();
-          result.variables.push({ type: "LITERAL", value: "\n" });
+          const carriageReturn = this.expectType(
+            "CARRIAGE_RETURN",
+            "Expected carriage return",
+          );
+          result.variables.push({
+            type: "LITERAL",
+            value: carriageReturn.value,
+          });
           continue;
         }
 
