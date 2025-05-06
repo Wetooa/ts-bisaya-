@@ -29,8 +29,6 @@ export function tokenize(input: string): Token[] {
       }
     }
 
-    // console.log(`${c} ${StateType[state]}`);
-
     if (isResetState(state)) {
       const tokenValue = value.trim();
 

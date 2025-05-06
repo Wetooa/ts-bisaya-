@@ -1,29 +1,29 @@
-import type { ASTNodeTypes } from "../../modules/parser/consts/ast-node-types";
+import { ASTNodeTypes } from "../../consts/parser/ast-node-types";
 
 export interface Statement {
   type: ASTNodeTypes;
 }
 
 export interface Program extends Statement {
-  type: ASTNodeTypes.PROGRAM;
+  type: "PROGRAM";
   body: Expression[];
 }
 
 export interface Expression extends Statement {}
 
 export interface BinaryExpression extends Expression {
-  type: ASTNodeTypes.BINARY_EXPRESSION;
+  type: "BINARY_EXPRESSION";
   left: Expression;
   right: Expression;
   operator: string;
 }
 
 export interface Identifier extends Expression {
-  type: ASTNodeTypes.IDENTIFIER;
+  type: "IDENTIFIER";
   value: string;
 }
 
 export interface NumericLiteral extends Expression {
-  type: ASTNodeTypes.NUMERIC_LITERAL;
+  type: "NUMERIC_LITERAL";
   value: number;
 }

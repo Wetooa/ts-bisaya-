@@ -1,5 +1,5 @@
 import { UnknownCharacterException } from "../../exceptions/lexer";
-import { isSkippable } from "../../utils/lexer";
+import { isSkippable, isSymbol } from "../../utils/lexer";
 import { StateType } from "./state-type";
 
 type TransitionFunction = (c: string) => StateType;
@@ -157,7 +157,7 @@ export const transitions: Record<StateType, TransitionFunction> = {
   [StateType.DIGIT_WHOLE]: (c: string): StateType => {
     if (/\d/.test(c)) {
       return StateType.DIGIT_WHOLE;
-    } else if (c == "\n" || isSkippable(c)) {
+    } else if (c == "\n" || isSkippable(c) || isSymbol(c)) {
       return StateType.DIGIT_END;
     } else {
       throw new UnknownCharacterException();

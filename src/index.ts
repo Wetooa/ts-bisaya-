@@ -10,20 +10,29 @@ async function repl() {
 
   while (true) {
     const input = await rl.question("> ");
+
     if (input === "exit") {
       break;
     }
 
+    run(input);
+  }
+
+  rl.close();
+  console.log("Goodbye!");
+}
+
+function run(input: string) {
+  try {
     const tokens = tokenize(input);
     const ast = parse(tokens);
 
     console.log(`You entered: ${input}`);
     console.log("Tokens:", tokens);
     console.log("AST:", ast);
+  } catch (error) {
+    console.error("Error:", error);
   }
-
-  rl.close();
-  console.log("Goodbye!");
 }
 
 repl();

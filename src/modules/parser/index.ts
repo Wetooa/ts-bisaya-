@@ -1,5 +1,6 @@
 import { TokenType } from "../../consts/lexer/token-type";
 import { ASTNodeTypes } from "../../consts/parser/ast-node-types";
+import { ParserException } from "../../exceptions/parser";
 import { type Token } from "../../types/lexer";
 import type {
   Expression,
@@ -24,6 +25,11 @@ export class Parser {
     return this.tokens[this.index++] as Token;
   }
 
+  private expect(tokenType: TokenType, errorMsg = "Unexpected token type") {
+    if (this.currentToken.type === tokenType) return this.eat();
+    throw new ParserException(errorMsg);
+  }
+
   private isEnd() {
     return this.tokens[this.index] === undefined;
   }
@@ -46,19 +52,19 @@ export class Parser {
   }
 
   private parseExpression(): Expression {
-    return this.parsePrimaryExpression();
+    return this.parseAdditiveExpression();
   }
 
   private parseAdditiveExpression(): Expression {
-    let left = this.parsePrimaryExpression();
+    let left = this.parseMultiplicativeExpression();
 
     while (
       !this.isEnd() &&
       this.currentToken.type === TokenType.ARITHMETIC_OPERATOR &&
-      this.currentToken.value === "+"
+      (this.currentToken.value === "+" || this.currentToken.value === "-")
     ) {
       const operator = this.eat()!.value;
-      const right = this.parsePrimaryExpression();
+      const right = this.parseMultiplicativeExpression();
 
       left = {
         type: ASTNodeTypes.BINARY_EXPRESSION,
@@ -77,7 +83,9 @@ export class Parser {
     while (
       !this.isEnd() &&
       this.currentToken.type === TokenType.ARITHMETIC_OPERATOR &&
-      (this.currentToken.value === "*" || this.currentToken.value === "/")
+      (this.currentToken.value === "*" ||
+        this.currentToken.value === "/" ||
+        this.currentToken.value === "%")
     ) {
       const operator = this.eat()!.value;
       const right = this.parsePrimaryExpression();
@@ -108,6 +116,12 @@ export class Parser {
           type: ASTNodeTypes.NUMERIC_LITERAL,
           value: parseFloat(this.eat()!.value),
         } as NumericLiteral;
+
+      case TokenType.OPEN_PARENTHESIS:
+        this.eat();
+        const expression = this.parseExpression();
+        this.expect(TokenType.OPEN_PARENTHESIS, "Expected closing parenthesis");
+        return expression;
 
       default:
         throw new Error(`Unexpected token type: ${token.type}`);
