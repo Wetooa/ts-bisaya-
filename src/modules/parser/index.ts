@@ -3,6 +3,7 @@ import { ASTNodeType } from "../../consts/parser/ast-node-types";
 import { ParserException } from "../../exceptions/parser";
 import { type Token } from "../../types/lexer";
 import type {
+  AssignmentExpression,
   CharLiteral,
   Expression,
   Identifier,
@@ -122,6 +123,21 @@ export class Parser {
   }
 
   private parseExpression(): Expression {
+    const left = this.parseAssignmentExpression();
+
+    if (this.currentToken.type === TokenType.ASSIGNMENT_OPERATOR) {
+      this.eat();
+      const value = this.parseExpression();
+      return {
+        assignee: left,
+        value,
+      } as AssignmentExpression;
+    }
+
+    return left;
+  }
+
+  private parseAssignmentExpression(): Expression {
     return this.parseAdditiveExpression();
   }
 
@@ -181,18 +197,6 @@ export class Parser {
           value: this.eat()!.value,
         } as Identifier;
 
-      case TokenType.CHAR_LITERAL:
-        return {
-          type: ASTNodeType.CHAR_LITERAL,
-          value: this.eat()!.value,
-        } as CharLiteral;
-
-      case TokenType.NULL:
-        this.eat();
-        return {
-          type: ASTNodeType.NULL_LITERAL,
-        } as NullLiteral;
-
       case TokenType.WHOLE_NUMERIC_LITERAL:
         return {
           type: ASTNodeType.NUMERIC_LITERAL,
@@ -204,6 +208,18 @@ export class Parser {
           type: ASTNodeType.NUMERIC_LITERAL,
           value: parseFloat(this.eat()!.value),
         } as NumericLiteral;
+
+      case TokenType.CHAR_LITERAL:
+        return {
+          type: ASTNodeType.CHAR_LITERAL,
+          value: this.eat()!.value,
+        } as CharLiteral;
+
+      case TokenType.NULL:
+        this.eat();
+        return {
+          type: ASTNodeType.NULL_LITERAL,
+        } as NullLiteral;
 
       case TokenType.OPEN_PARENTHESIS:
         this.eat();

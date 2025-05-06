@@ -20,6 +20,13 @@ export interface VariableDeclaration extends Statement {
   }[];
 }
 
+export interface AssignmentExpression extends Statement {
+  type: "ASSIGNMENT_EXPRESSION";
+
+  assignee: Expression;
+  value: Expression;
+}
+
 export interface Expression extends Statement {}
 
 export interface BinaryExpression extends Expression {
@@ -45,7 +52,7 @@ export interface CharLiteral extends Expression {
 }
 
 export interface BooleanLiteral extends Expression {
-  type: "CHAR_LITERAL";
+  type: "BOOLEAN_LITERAL";
   value: boolean;
 }
 

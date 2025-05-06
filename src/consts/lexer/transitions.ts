@@ -14,8 +14,10 @@ export const transitions: Record<StateType, TransitionFunction> = {
       return StateType.NEWLINE;
     } else if (c === "-") {
       return StateType.COMMENT;
-    } else if (["+", "*", "/", "%", "="].includes(c)) {
-      return StateType.ASSIGNMENT_OPERATOR_BEGIN;
+    } else if (c === "=") {
+      return StateType.ASSIGNMENT_OPERATOR_EQUALS_BEGIN;
+    } else if (["+", "*", "/", "%"].includes(c)) {
+      return StateType.ASSIGNMENT_OPERATOR_ARITHMETIC_BEGIN;
     } else if (c === "<") {
       return StateType.LESS_THAN_ARITHMETIC_OPERATOR;
     } else if (c === ">") {
@@ -53,7 +55,7 @@ export const transitions: Record<StateType, TransitionFunction> = {
     if (c === "-") {
       return StateType.COMMENT_CONTENT;
     } else if (c === "=") {
-      return StateType.ASSIGNMENT_OPERATOR;
+      return StateType.ASSIGNMENT_OPERATOR_END;
     } else {
       return StateType.ARITHMETIC_OPERATOR_END;
     }
@@ -64,10 +66,10 @@ export const transitions: Record<StateType, TransitionFunction> = {
   },
 
   [StateType.LESS_THAN_ARITHMETIC_OPERATOR]: (c: string): StateType => {
-    if (c === "=") {
+    if (c === ">") {
       return StateType.NOT_EQUAL_ARITHMETIC_OPERATOR;
     }
-    if (c === ">") {
+    if (c === "=") {
       return StateType.LESS_THAN_OR_EQUAL_ARITHMETIC_OPERATOR;
     }
     if (isSkippable(c)) {
@@ -102,14 +104,25 @@ export const transitions: Record<StateType, TransitionFunction> = {
     return StateType.ARITHMETIC_OPERATOR_END;
   },
 
-  [StateType.ASSIGNMENT_OPERATOR_BEGIN]: (c: string): StateType => {
+  [StateType.ASSIGNMENT_OPERATOR_EQUALS_BEGIN]: function (
+    c: string,
+  ): StateType {
     if (c === "=") {
-      return StateType.ASSIGNMENT_OPERATOR;
+      return StateType.ARITHMETIC_OPERATOR_END;
+    } else {
+      return StateType.ASSIGNMENT_OPERATOR_END;
     }
-    return StateType.ARITHMETIC_OPERATOR_END;
   },
 
-  [StateType.ASSIGNMENT_OPERATOR]: () => StateType.ASSIGNMENT_OPERATOR_END,
+  [StateType.ASSIGNMENT_OPERATOR_ARITHMETIC_BEGIN]: function (
+    c: string,
+  ): StateType {
+    if (c === "=") {
+      return StateType.ASSIGNMENT_OPERATOR_END;
+    } else {
+      return StateType.ARITHMETIC_OPERATOR_END;
+    }
+  },
 
   [StateType.OPEN_PARENTHESIS]: () => StateType.OPEN_PARENTHESIS_END,
 

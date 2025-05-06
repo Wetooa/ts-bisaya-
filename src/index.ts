@@ -26,10 +26,10 @@ async function repl() {
 function run(input: string) {
   try {
     const tokens = tokenize(input);
-    const ast = parse(tokens);
-
     console.log(`You entered: ${input}`);
     console.log("Tokens:", tokens);
+
+    const ast = parse(tokens);
     console.log("AST:", ast);
   } catch (error) {
     console.error("Error:", error);

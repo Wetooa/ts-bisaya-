@@ -9,12 +9,12 @@ describe("Lexer", () => {
 
     // console.log("Tokenized:", tokens);
 
-    expect(tokens[0]?.type).toBe(TokenType.NUMERIC_LITERAL);
+    expect(tokens[0]?.type).toBe(TokenType.WHOLE_NUMERIC_LITERAL);
     expect(tokens[1]?.type).toBe(TokenType.VARIABLE_DECLARATION);
     expect(tokens[2]?.type).toBe(TokenType.ARITHMETIC_OPERATOR);
     expect(tokens[3]?.type).toBe(TokenType.ARITHMETIC_OPERATOR);
     expect(tokens[4]?.type).toBe(TokenType.ARITHMETIC_OPERATOR);
-    expect(tokens[5]?.type).toBe(TokenType.NUMERIC_LITERAL);
+    expect(tokens[5]?.type).toBe(TokenType.WHOLE_NUMERIC_LITERAL);
     expect(tokens[6]?.type).toBe(TokenType.NEWLINE);
     expect(tokens[7]?.type).toBe(TokenType.IDENTIFIER);
     expect(tokens[8]?.type).toBe(TokenType.DATATYPE);
