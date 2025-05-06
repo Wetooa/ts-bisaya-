@@ -33,14 +33,14 @@ export function evaluate_numeric_expression(root: Expression) {
     return (root as NumericLiteral).value;
   } else if (root.type === "BINARY_EXPRESSION") {
     let leftValue: number = evaluate_numeric_expression(
-      (root as BinaryExpression).left
+      (root as BinaryExpression).left,
     );
     let rightValue: number = evaluate_numeric_expression(
-      (root as BinaryExpression).right
+      (root as BinaryExpression).right,
     );
 
     return eval(
-      `${leftValue} ${(root as BinaryExpression).operator} ${rightValue}`
+      `${leftValue} ${(root as BinaryExpression).operator} ${rightValue}`,
     );
   }
 }
@@ -51,7 +51,7 @@ function evaluate_mugna(head: ASTNode) {
   let data_type: string = head.left?.value as string;
   if (["NUMERO", "LETRA", "TINUOD", "TIPIK"].includes(data_type) == false) {
     throw new InvalidDataType(
-      `Got ${data_type} should be ${'["NUMERO", "LETRA", "TINUOD", "TIPIK"]'}`
+      `Got ${data_type} should be ${'["NUMERO", "LETRA", "TINUOD", "TIPIK"]'}`,
     );
   }
   parseVariables(data_type, head.left!.left!);
