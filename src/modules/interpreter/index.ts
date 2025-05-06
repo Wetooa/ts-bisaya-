@@ -173,8 +173,6 @@ export class Interpreter {
 
       this.output += value;
     }
-
-    this.output += "\n"; // Add a newline after output
   }
 
   private executeIfStatement(statement: IfStatement): void {
