@@ -4,6 +4,7 @@ import { ParserException } from "../../exceptions/parser";
 import { type Token } from "../../types/lexer";
 import type {
   AssignmentExpression,
+  BinaryExpression,
   CharLiteral,
   Expression,
   Identifier,
@@ -61,10 +62,20 @@ export class Parser {
     switch (this.currentToken.type) {
       case TokenType.VARIABLE_DECLARATION:
         return this.parseVariableDeclaration();
+      // case TokenType.INPUT_STATEMENTS:
+      //   return this.parseInputStatement();
+      // case TokenType.OUTPUT_STATEMENTS:
+      //   return this.parseOutputStatement();
       default:
         return this.parseExpression();
     }
   }
+
+  // private parseInputStatement(): Expression {
+  // }
+
+  // private parseOutputStatement(): Expression {
+  // }
 
   private parseVariableDeclaration(): Expression {
     this.expectType(
@@ -85,8 +96,9 @@ export class Parser {
 
     const DATATYPE_TO_AST_NODE_TYPE: Record<string, ASTNodeType> = {
       CHAR_LITERAL: ASTNodeType.CHAR_LITERAL,
-      WHOLE_NUMERIC_LITERAL: ASTNodeType.NUMERIC_LITERAL,
       BOOLEAN_LITERAL: ASTNodeType.BOOLEAN_LITERAL,
+
+      WHOLE_NUMERIC_LITERAL: ASTNodeType.NUMERIC_LITERAL,
       DECIMAL_NUMERIC_LITERAL: ASTNodeType.NUMERIC_LITERAL,
     };
 
@@ -100,9 +112,10 @@ export class Parser {
         this.expectValue("=", "Expected equals assignment operator");
         const value = this.parseExpression();
 
-        if (value.type !== DATATYPE_TO_AST_NODE_TYPE[dataType.value]) {
-          throw new ParserException("Type mismatch in assignment");
-        }
+        // NOTE: dunno where this is supposed to be
+        // if (value.type !== DATATYPE_TO_AST_NODE_TYPE[dataType.value]) {
+        //   throw new ParserException("Type mismatch in assignment");
+        // }
 
         result.variables.push({
           identifier: identifier.value,
@@ -138,7 +151,27 @@ export class Parser {
   }
 
   private parseAssignmentExpression(): Expression {
-    return this.parseAdditiveExpression();
+    return this.parseLogicalExpression();
+  }
+
+  private parseLogicalExpression(): Expression {
+    let left = this.parseAdditiveExpression();
+
+    while (
+      !this.isEnd() &&
+      this.currentToken.type === TokenType.LOGICAL_OPERATOR
+    ) {
+      const operator = this.eat()!.value;
+      const right = this.parseAdditiveExpression();
+      left = {
+        type: ASTNodeType.BINARY_EXPRESSION,
+        operator,
+        left,
+        right,
+      } as BinaryExpression;
+    }
+
+    return left;
   }
 
   private parseAdditiveExpression(): Expression {
@@ -153,11 +186,10 @@ export class Parser {
       const right = this.parseMultiplicativeExpression();
 
       left = {
-        type: ASTNodeType.BINARY_EXPRESSION,
         operator,
         left,
         right,
-      } as Expression;
+      } as BinaryExpression;
     }
 
     return left;
@@ -225,7 +257,7 @@ export class Parser {
         this.eat();
         const expression = this.parseExpression();
         this.expectType(
-          TokenType.OPEN_PARENTHESIS,
+          TokenType.CLOSE_PARENTHESIS,
           "Expected closing parenthesis",
         );
         return expression;
