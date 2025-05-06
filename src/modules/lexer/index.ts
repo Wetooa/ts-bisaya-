@@ -243,6 +243,21 @@ export class Tokenizer {
         break;
       case "+":
       case "-":
+        if (this.peek(1) === char) {
+          this.tokens.push(
+            createToken(
+              char === "+" ? "INCREMENT_OPERATOR" : "DECREMENT_OPERATOR",
+              char + char,
+            ),
+          );
+          this.advance(2);
+          break;
+        }
+
+        this.tokens.push(createToken("ARITHMETIC_OPERATOR", char));
+        this.advance();
+        break;
+
       case "*":
       case "/":
       case "%":

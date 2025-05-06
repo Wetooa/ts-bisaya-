@@ -487,6 +487,11 @@ export class Parser {
     // NOTE: IF IT'S AN IDENTIFIER, CHECK IF IT'S DECLARED
     this.assertExpressionPresent(left);
 
+    // FIX: implement this lol
+    // if (this.currentToken.type === "INCREMENT_OPERATOR") {
+    //   this.eat();
+    // }
+
     if (this.currentToken.type === "ASSIGNMENT_OPERATOR") {
       this.eat();
       const right = this.parseExpression();

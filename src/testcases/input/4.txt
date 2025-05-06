@@ -5,8 +5,8 @@ SUGOD
     IPAKITA: ctr & ' '
   }
 
-  ALANG SA (ctr=1, ctr<=10, ctr = ctr++)
-  PUNDOK{
-    IPAKITA: ctr & ' '
-  }
+  -- ALANG SA (ctr=1, ctr<=10, ctr = ctr++)
+  -- PUNDOK{
+  --  IPAKITA: ctr & ' '
+  -- }
 KATAPUSAN
