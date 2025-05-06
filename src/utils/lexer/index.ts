@@ -1,5 +1,5 @@
-import { SKIPPABLE_SYMBOLS } from "../consts/skippable-symbols";
-import { StateType, END_STATES } from "../consts/state-type";
+import { SKIPPABLE_SYMBOLS } from "../../consts/lexer/skippable-symbols";
+import { StateType, END_STATES } from "../../consts/lexer/state-type";
 
 export function isSkippable(c: string): boolean {
   return SKIPPABLE_SYMBOLS.has(c);

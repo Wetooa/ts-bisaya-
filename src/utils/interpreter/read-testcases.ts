@@ -1,9 +1,9 @@
 const TESTCASE_LIMIT = 100;
 
 import path from "path";
-import { InterpreterException } from "../../../exceptions/interpreter";
-import type TestCase from "../../../types/interpreter/testcase";
 import { fileExists, readFile } from "./read-file";
+import { InterpreterException } from "../../exceptions/interpreter";
+import type TestCase from "../../types/interpreter/testcase";
 
 /**
  * Gets the absolute path to the project root directory
@@ -20,8 +20,16 @@ export function readTestCases(): TestCase[] {
   // Read all test cases up to the limit
   for (let i = 1; i <= TESTCASE_LIMIT; i++) {
     try {
-      const inputPath = path.join(projectRoot, "testcases/input", `${i}.txt`);
-      const outputPath = path.join(projectRoot, "testcases/output", `${i}.txt`);
+      const inputPath = path.join(
+        projectRoot,
+        "src/testcases/input",
+        `${i}.txt`,
+      );
+      const outputPath = path.join(
+        projectRoot,
+        "src/testcases/output",
+        `${i}.txt`,
+      );
 
       if (fileExists(inputPath) && fileExists(outputPath)) {
         const input = readFile(inputPath);
