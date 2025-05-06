@@ -10,6 +10,7 @@ import type {
   Program,
   VariableDeclaration,
 } from "../../types/parser";
+import type { Statement } from "typescript";
 ``;
 var variableDictionary = new Map();
 
@@ -55,8 +56,8 @@ export function evaluate_numeric_expression(root: Expression) {
 }
 
 // Variable declaration
-function evaluate_variable_declaration(statement: Expression) {
-  let dataType = (statement as VariableDeclaration).dataType;
+function evaluate_variable_declaration(statement: VariableDeclaration) {
+  let dataType = statement.dataType;
 
   (statement as VariableDeclaration).variables.forEach((variable) => {
     if (checkVariable(variable.value, dataType)) {
@@ -86,11 +87,11 @@ function checkVariable(element: any, data_type: string) {
 }
 
 // IPAKITA
-function evaluate_ipakita(expression: Expression) {
+function evaluate_ipakita(expression: OutputStatement) {
   let res = "";
 
-  (expression as OutputStatement).variables.forEach((variable) => {
-    switch (variable) {
+  expression.variables.forEach((variable) => {
+    switch (variable.value.value) {
       case "&":
         res += "";
         break;
@@ -103,7 +104,7 @@ function evaluate_ipakita(expression: Expression) {
 }
 
 // DAWAT
-async function evaluate_dawat(expression: Expression) {
+async function evaluate_dawat(expression: InputStatement) {
   let variables: string[] = [];
 
   (expression as InputStatement).variables.forEach((variable) => {
