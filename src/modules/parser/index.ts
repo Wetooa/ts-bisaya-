@@ -327,7 +327,7 @@ export class Parser {
     const increment = this.parseExpression();
 
     this.expectType("CLOSE_PARENTHESIS", "Expected closing parenthesis");
-    this.expectType("NEWLINE", "Expected newline after for loop declaration");
+    this.removeSkippableTokens();
 
     // Body
     const body = this.parseCodeBlock();
@@ -502,17 +502,45 @@ export class Parser {
     // NOTE: IF IT'S AN IDENTIFIER, CHECK IF IT'S DECLARED
     this.assertExpressionPresent(left);
 
-    // FIX: implement this lol
     // if (this.currentToken.type === "INCREMENT_OPERATOR") {
-    //   this.eat();
+    //   const op = this.eat();
+    //
+    //   this.assertExpressionDataTypeMatching(left, {
+    //     dataType: "INT",
+    //   } as NumericLiteral);
+    //
+    //
+    //
+    //   const right = {
+    //     type: "BINARY_EXPRESSION",
+    //     dataType: "INT",
+    //     operator: op.value[0],
+    //     left: {
+    //       type: "NUMERIC_LITERAL",
+    //       dataType: "INT",
+    //       value: left.value,
+    //     } as NumericLiteral,
+    //     right: {
+    //       type: "BINARY_EXPRESSION",
+    //       dataType: "INT",
+    //       operator: op.value[1],
+    //     }
+    //   } as BinaryExpression;
+    //
+    //   this.assertExpressionDataTypeMatching(left, right);
+    //
+    //   return {
+    //     type: "ASSIGNMENT_EXPRESSION",
+    //     dataType: left.dataType === undefined ? right.dataType : left.dataType,
+    //     assignee: left,
+    //     value: right,
+    //   } as AssignmentExpression;
     // }
 
     if (this.currentToken.type === "ASSIGNMENT_OPERATOR") {
       this.eat();
       const right = this.parseAssignmentExpression();
-
       this.assertExpressionDataTypeMatching(left, right);
-
       left = {
         type: "ASSIGNMENT_EXPRESSION",
         dataType: left.dataType === undefined ? right.dataType : left.dataType,
@@ -738,6 +766,9 @@ export class Parser {
         const expression = this.parseExpression();
         this.expectType("CLOSE_PARENTHESIS", "Expected closing parenthesis");
         return expression;
+
+      case "CLOSE_PARENTHESIS":
+        return {} as NullLiteral;
 
       case "NEWLINE":
         this.eat();

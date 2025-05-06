@@ -1,16 +1,15 @@
 import { interpret } from "./modules/interpreter";
 import { tokenize } from "./modules/lexer";
 import { parse } from "./modules/parser";
+import { readTestCases } from "./utils/interpreter/read-testcases";
 
-const { createInterface } = await import("node:readline/promises");
-const { stdin, stdout } = await import("node:process");
-const rl = createInterface({ input: stdin, output: stdout });
+import readlineSync from "readline-sync";
 
 async function repl() {
   console.log('Welcome to the REPL! Type "exit" to quit.');
 
   while (true) {
-    const input = (await rl.question("> ")) + "\n";
+    const input = readlineSync.question("> ") + "\n";
 
     if (input === "exit") {
       break;
@@ -19,7 +18,6 @@ async function repl() {
     run(input, true);
   }
 
-  rl.close();
   console.log("Goodbye!");
 }
 
@@ -43,4 +41,12 @@ export function run(input: string, isRepl = false) {
   return output;
 }
 
-repl();
+// repl();
+
+function main() {
+  const testcases = readTestCases(8);
+
+  run(testcases[6]!.input, false);
+}
+
+main();

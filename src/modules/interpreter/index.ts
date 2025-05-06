@@ -18,30 +18,33 @@ import type {
   VariableDeclaration,
 } from "../../types/parser";
 
+import readlineSync from "readline-sync";
+
 export class Interpreter {
   private variables: Map<
     string,
     { type: DataType; value: number | boolean | string | null }
   >;
-  private input: string[];
   private output: string;
-  private inputIndex: number;
+  private line: number;
+  private program: Program;
 
-  constructor(input: string[] = []) {
+  constructor(program: Program) {
     this.variables = new Map();
-    this.input = input;
     this.output = "";
-    this.inputIndex = 0;
+    this.program = program;
+    this.line = 0;
   }
 
-  public interpret(program: Program): string {
-    this.executeStatements(program.body);
+  public interpret(): string {
+    this.executeStatements(this.program.body);
     return this.output;
   }
 
   private executeStatements(statements: Statement[]): void {
     for (const statement of statements) {
       this.executeStatement(statement);
+      this.line++;
     }
   }
 
@@ -116,31 +119,42 @@ export class Interpreter {
     throw new Error(`Cannot assign to non-identifier`);
   }
 
-  private executeInputStatement(statement: InputStatement): void {
-    for (const variableName of statement.variables) {
+  private executeInputStatement(statement: InputStatement) {
+    let inputValue = readlineSync.question("").split(",");
+    inputValue = inputValue.map((value) => value.trim());
+
+    if (inputValue.length < statement.variables.length) {
+      throw new Error(
+        `Not enough input values provided. Expected ${statement.variables.length}, got ${inputValue.length}`,
+      );
+    }
+
+    for (let i = 0; i < statement.variables.length; i++) {
+      const variableName = statement.variables[i]!;
+      const input = inputValue[i]!;
+
       if (!this.variables.has(variableName)) {
         throw new Error(`Variable ${variableName} is not defined`);
       }
 
       const variable = this.variables.get(variableName)!;
-      let inputValue = this.input[this.inputIndex++] || "";
 
       // Convert input based on variable type
       switch (variable.type) {
         case "INT":
-          variable.value = parseInt(inputValue) || 0;
+          variable.value = parseInt(input) || 0;
           break;
         case "FLOAT":
-          variable.value = parseFloat(inputValue) || 0.0;
+          variable.value = parseFloat(input) || 0.0;
           break;
         case "CHAR":
-          variable.value = inputValue.charAt(0) || "";
+          variable.value = input.charAt(0) || "";
           break;
         case "BOOLEAN":
-          variable.value = inputValue === "OO";
+          variable.value = input === "OO";
           break;
         default:
-          variable.value = inputValue;
+          variable.value = input;
       }
     }
   }
@@ -244,8 +258,14 @@ export class Interpreter {
         return this.executeAssignmentExpression(
           expression as AssignmentExpression,
         );
+
+      case "NULL_LITERAL":
+        return this.getDefaultValueForType("NULL");
+
       default:
-        throw new Error(`Unknown expression type: ${expression.type}`);
+        throw new Error(
+          `Exception line ${this.program.body[this.line]} >>> Unknown expression type: ${expression.type}`,
+        );
     }
   }
 
@@ -311,7 +331,7 @@ export class Interpreter {
 }
 
 // Factory function for backward compatibility
-export function interpret(program: Program, input: string[] = []): string {
-  const interpreter = new Interpreter(input);
-  return interpreter.interpret(program);
+export function interpret(program: Program): string {
+  const interpreter = new Interpreter(program);
+  return interpreter.interpret();
 }
