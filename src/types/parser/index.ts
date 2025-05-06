@@ -51,10 +51,7 @@ export interface InputStatement extends Statement {
 
 export interface OutputStatement extends Statement {
   type: "OUTPUT_STATEMENT";
-  variables: Array<
-    | { type: "IDENTIFIER"; identifierName: string }
-    | { type: "LITERAL"; value: string | number }
-  >;
+  variables: Expression[];
 }
 
 export interface CodeBlock extends Statement {

@@ -150,7 +150,7 @@ export class Interpreter {
       let value;
 
       if (variable.type === "IDENTIFIER") {
-        const identifierName = variable.identifierName;
+        const identifierName = variable.value as string;
         if (!this.variables.has(identifierName)) {
           throw new Error(`Variable ${identifierName} is not defined`);
         }
@@ -162,9 +162,9 @@ export class Interpreter {
         } else {
           value = this.variables.get(identifierName)!.value;
         }
-      } else if (variable.type === "LITERAL") {
+      } else {
         value =
-          typeof variable.value === "boolean"
+          variable.dataType === "BOOLEAN"
             ? variable.value
               ? "OO"
               : "DILI"

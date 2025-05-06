@@ -384,64 +384,7 @@ export class Parser {
     };
 
     while (true) {
-      switch (this.currentToken.type) {
-        case "STRING": {
-          const stringLiteral = this.expectType("STRING", "Expected string");
-          result.variables.push({
-            type: "LITERAL",
-            value: stringLiteral.value,
-          });
-          break;
-        }
-
-        case "ESCAPED_CHAR": {
-          const charLiteral = this.expectType("ESCAPED_CHAR", "Expected char");
-          result.variables.push({ type: "LITERAL", value: charLiteral.value });
-          break;
-        }
-
-        case "CHAR_LITERAL": {
-          const charLiteral = this.expectType("CHAR_LITERAL", "Expected char");
-          result.variables.push({ type: "LITERAL", value: charLiteral.value });
-          break;
-        }
-
-        case "BOOLEAN_LITERAL": {
-          const booleanLiteral = this.expectType(
-            "BOOLEAN_LITERAL",
-            "Expected boolean literal",
-          );
-          result.variables.push({
-            type: "LITERAL",
-            value: booleanLiteral.value,
-          });
-          break;
-        }
-
-        case "CARRIAGE_RETURN": {
-          const carriageReturn = this.expectType(
-            "CARRIAGE_RETURN",
-            "Expected carriage return",
-          );
-          result.variables.push({
-            type: "LITERAL",
-            value: carriageReturn.value,
-          });
-          continue;
-        }
-
-        case "IDENTIFIER": {
-          const identifier = this.expectType(
-            "IDENTIFIER",
-            "Expected identifier",
-          );
-          result.variables.push({
-            type: "IDENTIFIER",
-            identifierName: identifier.value,
-          });
-          break;
-        }
-      }
+      result.variables.push(this.parseExpression());
 
       if (this.currentToken.type === "AMPERSAND") {
         this.eat();
@@ -775,6 +718,20 @@ export class Parser {
           value: this.eat()!.value,
           dataType: "STRING",
         } as StringLiteral;
+
+      case "ESCAPED_CHAR":
+        return {
+          type: "CHAR_LITERAL",
+          value: this.eat()!.value,
+          dataType: "CHAR",
+        };
+
+      case "CARRIAGE_RETURN":
+        return {
+          type: "CHAR_LITERAL",
+          value: this.eat()!.value,
+          dataType: "CHAR",
+        };
 
       case "OPEN_PARENTHESIS":
         this.eat();
