@@ -232,6 +232,7 @@ export class Tokenizer {
         this.advance();
         break;
       case "+":
+      case "-":
       case "*":
       case "/":
       case "%":

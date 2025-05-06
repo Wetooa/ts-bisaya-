@@ -14,6 +14,13 @@ export class DataTypeMismatchException extends ParserException {
   }
 }
 
+export class IdentifierNotFoundException extends ParserException {
+  constructor(identifier: Token) {
+    super(`Identifier "${identifier.value}" not found.`);
+    this.name = "IdentifierNotFoundException";
+  }
+}
+
 export class IdentifierRedeclarationException extends ParserException {
   constructor(identifier: Token) {
     super(`Identifier "${identifier.value}" has already been declared.`);

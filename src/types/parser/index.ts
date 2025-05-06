@@ -55,6 +55,7 @@ export interface OutputStatement extends Statement {
 
 export interface Expression extends Statement {
   dataType: DataType;
+  value?: unknown;
 }
 
 export interface AssignmentExpression extends Expression {

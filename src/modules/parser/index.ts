@@ -3,6 +3,7 @@ import type { DataType } from "../../consts/parser/datatype";
 import {
   DataTypeMismatchException,
   DatatypeNotFoundException,
+  IdentifierNotFoundException,
   IdentifierRedeclarationException,
   ParserException,
 } from "../../exceptions/parser";
@@ -241,9 +242,17 @@ export class Parser {
   private parseAssignmentExpression(): Expression {
     let left = this.parseLogicalExpression();
 
+    // NOTE: IF IT'S AN IDENTIFIER, CHECK IF IT'S DECLARED
+    if (left.type === "IDENTIFIER") {
+      const identifier = left as Identifier;
+      if (!this.isIdentifierPresent(identifier.value)) {
+        throw new IdentifierNotFoundException(left as Identifier);
+      }
+    }
+
     if (this.currentToken.type === "ASSIGNMENT_OPERATOR") {
       this.eat();
-      const right = this.parseLogicalExpression();
+      const right = this.parseAssignmentExpression();
 
       this.assertExpressionDataTypeMatching(left, right);
 
@@ -263,7 +272,7 @@ export class Parser {
 
     while (!this.isEnd() && this.currentToken.type === "LOGICAL_OPERATOR") {
       const operator = this.eat()!.value;
-      const right = this.parseAdditiveExpression();
+      const right = this.parseAssignmentExpression();
 
       this.assertExpressionDataTypeMatching(left, right);
 
@@ -288,7 +297,7 @@ export class Parser {
       (this.currentToken.value === "+" || this.currentToken.value === "-")
     ) {
       const operator = this.eat()!.value;
-      const right = this.parseMultiplicativeExpression();
+      const right = this.parseAssignmentExpression();
 
       this.assertExpressionDataTypeMatching(left, right);
 
@@ -315,7 +324,7 @@ export class Parser {
         this.currentToken.value === "%")
     ) {
       const operator = this.eat()!.value;
-      const right = this.parsePrimaryExpression();
+      const right = this.parseAssignmentExpression();
 
       this.assertExpressionDataTypeMatching(left, right);
 
@@ -333,6 +342,47 @@ export class Parser {
 
   private parsePrimaryExpression(): Expression {
     const token = this.currentToken;
+
+    // NOTE: FOR UNARY
+    if (
+      token.type === "ARITHMETIC_OPERATOR" &&
+      (token.value === "-" || token.value === "+")
+    ) {
+      this.eat();
+      const right = this.parsePrimaryExpression();
+      const left = {
+        type: "NUMERIC_LITERAL",
+        value: 0,
+        dataType: right.dataType,
+      };
+
+      this.assertExpressionDataTypeMatching(left as Expression, right);
+
+      return {
+        type: "BINARY_EXPRESSION",
+        dataType: right.dataType,
+        operator: token.value[0],
+        left,
+        right,
+      } as BinaryExpression;
+    }
+
+    if (token.type === "LOGICAL_OPERATOR" && token.value === "DILI") {
+      this.eat();
+      const right = this.parsePrimaryExpression();
+
+      if (right.dataType !== "BOOLEAN") {
+        throw new DataTypeMismatchException(right.dataType, "BOOLEAN");
+      }
+
+      const value = right.value as BooleanLiteral;
+
+      return {
+        type: "BOOLEAN_LITERAL",
+        dataType: "BOOLEAN",
+        value: !value,
+      } as BooleanLiteral;
+    }
 
     switch (token.type) {
       case "IDENTIFIER":
@@ -358,7 +408,7 @@ export class Parser {
       case "BOOLEAN_LITERAL":
         return {
           type: "BOOLEAN_LITERAL",
-          value: !!this.eat()!.value,
+          value: this.eat()!.value === "OO" ? true : false,
           dataType: "BOOLEAN",
         } as BooleanLiteral;
 
