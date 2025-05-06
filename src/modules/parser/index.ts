@@ -43,7 +43,7 @@ export class Parser {
   }
 
   private isEnd() {
-    return this.currentToken.type === TokenType.EOF;
+    return this.currentToken.type === "EOF";
   }
 
   public parse(): Program {
@@ -61,11 +61,11 @@ export class Parser {
 
   private parseStatement(): Expression {
     switch (this.currentToken.type) {
-      case TokenType.VARIABLE_DECLARATION:
+      case "VARIABLE_DECLARATION":
         return this.parseVariableDeclaration();
-      case TokenType.INPUT_STATEMENTS:
+      case "INPUT_STATEMENTS":
         return this.parseInputStatement();
-      case TokenType.OUTPUT_STATEMENTS:
+      case "OUTPUT_STATEMENTS":
         return this.parseOutputStatement();
       default:
         return this.parseExpression();
@@ -73,8 +73,8 @@ export class Parser {
   }
 
   private parseInputStatement(): Expression {
-    this.expectType(TokenType.INPUT_STATEMENTS, "Expected input statement");
-    this.expectType(TokenType.COLON, "Expected colon after input statement");
+    this.expectType("INPUT_STATEMENTS", "Expected input statement");
+    this.expectType("COLON", "Expected colon after input statement");
 
     const result: InputStatement = {
       type: "INPUT_STATEMENT",
@@ -82,18 +82,15 @@ export class Parser {
     };
 
     while (true) {
-      const identifier = this.expectType(
-        TokenType.IDENTIFIER,
-        "Expected identifier",
-      );
+      const identifier = this.expectType("IDENTIFIER", "Expected identifier");
       result.variables.push(identifier.value);
 
-      if (this.currentToken.type === TokenType.COMMA) {
+      if (this.currentToken.type === "COMMA") {
         this.eat();
         continue;
       }
 
-      if (this.currentToken.type === TokenType.NEWLINE) {
+      if (this.currentToken.type === "NEWLINE") {
         this.eat();
         break;
       }
@@ -105,8 +102,8 @@ export class Parser {
   }
 
   private parseOutputStatement(): Expression {
-    this.expectType(TokenType.OUTPUT_STATEMENTS, "Expected output statement");
-    this.expectType(TokenType.COLON, "Expected colon after output statement");
+    this.expectType("OUTPUT_STATEMENTS", "Expected output statement");
+    this.expectType("COLON", "Expected colon after output statement");
 
     const result: OutputStatement = {
       type: "OUTPUT_STATEMENT",
@@ -114,37 +111,33 @@ export class Parser {
     };
 
     while (true) {
-      const identifier = this.expectType(
-        TokenType.IDENTIFIER,
-        "Expected identifier",
-      );
+      const identifier = this.expectType("IDENTIFIER", "Expected identifier");
 
       result.variables.push(identifier.value);
 
-      if (this.currentToken.type === TokenType.AMPERSAND) {
+      if (this.currentToken.type === "AMPERSAND") {
         this.eat();
         continue;
       }
 
-      if (this.currentToken.type === TokenType.NEWLINE) {
+      if (this.currentToken.type === "NEWLINE") {
         this.eat();
         break;
       }
 
-      throw new ParserException("Expected comma or newline after identifier");
+      throw new ParserException(
+        "Expected ampersand or newline after identifier",
+      );
     }
 
     return result;
   }
 
   private parseVariableDeclaration(): Expression {
-    this.expectType(
-      TokenType.VARIABLE_DECLARATION,
-      "Expected variable declaration",
-    );
+    this.expectType("VARIABLE_DECLARATION", "Expected variable declaration");
 
     const dataType = this.expectType(
-      TokenType.DATATYPE,
+      "DATATYPE",
       "Expected datatype following MUGNA keyword",
     );
 
@@ -155,12 +148,9 @@ export class Parser {
     };
 
     while (true) {
-      const identifier = this.expectType(
-        TokenType.IDENTIFIER,
-        "Expected identifier",
-      );
+      const identifier = this.expectType("IDENTIFIER", "Expected identifier");
 
-      if (this.currentToken.type === TokenType.ASSIGNMENT_OPERATOR) {
+      if (this.currentToken.type === "ASSIGNMENT_OPERATOR") {
         this.expectValue("=", "Expected equals assignment operator");
         const value = this.parseExpression();
 
@@ -176,12 +166,12 @@ export class Parser {
         result.variables.push({ identifier: identifier.value });
       }
 
-      if (this.currentToken.type === TokenType.COMMA) {
+      if (this.currentToken.type === "COMMA") {
         this.eat();
         continue;
       }
 
-      if (this.currentToken.type === TokenType.NEWLINE) {
+      if (this.currentToken.type === "NEWLINE") {
         this.eat();
         break;
       }
@@ -199,7 +189,7 @@ export class Parser {
   private parseAssignmentExpression(): Expression {
     let left = this.parseLogicalExpression();
 
-    if (this.currentToken.type === TokenType.ASSIGNMENT_OPERATOR) {
+    if (this.currentToken.type === "ASSIGNMENT_OPERATOR") {
       this.eat();
       const right = this.parseLogicalExpression();
 
@@ -220,10 +210,7 @@ export class Parser {
   private parseLogicalExpression(): Expression {
     let left = this.parseAdditiveExpression();
 
-    while (
-      !this.isEnd() &&
-      this.currentToken.type === TokenType.LOGICAL_OPERATOR
-    ) {
+    while (!this.isEnd() && this.currentToken.type === "LOGICAL_OPERATOR") {
       const operator = this.eat()!.value;
       const right = this.parseAdditiveExpression();
 
@@ -243,7 +230,7 @@ export class Parser {
 
     while (
       !this.isEnd() &&
-      this.currentToken.type === TokenType.ARITHMETIC_OPERATOR &&
+      this.currentToken.type === "ARITHMETIC_OPERATOR" &&
       (this.currentToken.value === "+" || this.currentToken.value === "-")
     ) {
       const operator = this.eat()!.value;
@@ -264,7 +251,7 @@ export class Parser {
 
     while (
       !this.isEnd() &&
-      this.currentToken.type === TokenType.ARITHMETIC_OPERATOR &&
+      this.currentToken.type === "ARITHMETIC_OPERATOR" &&
       (this.currentToken.value === "*" ||
         this.currentToken.value === "/" ||
         this.currentToken.value === "%")
@@ -287,38 +274,35 @@ export class Parser {
     const token = this.currentToken;
 
     switch (token.type) {
-      case TokenType.IDENTIFIER:
+      case "IDENTIFIER":
         return {
           value: this.eat()!.value,
         } as Identifier;
 
-      case TokenType.WHOLE_NUMERIC_LITERAL:
+      case "WHOLE_NUMERIC_LITERAL":
         return {
           value: parseInt(this.eat()!.value),
         } as NumericLiteral;
 
-      case TokenType.DECIMAL_NUMERIC_LITERAL:
+      case "DECIMAL_NUMERIC_LITERAL":
         return {
           value: parseFloat(this.eat()!.value),
         } as NumericLiteral;
 
-      case TokenType.BOOLEAN_LITERAL:
+      case "BOOLEAN_LITERAL":
         return {
           value: !!this.eat()!.value,
         } as BooleanLiteral;
 
-      case TokenType.CHAR_LITERAL:
+      case "CHAR_LITERAL":
         return {
           value: this.eat()!.value,
         } as CharLiteral;
 
-      case TokenType.OPEN_PARENTHESIS:
+      case "OPEN_PARENTHESIS":
         this.eat();
         const expression = this.parseExpression();
-        this.expectType(
-          TokenType.CLOSE_PARENTHESIS,
-          "Expected closing parenthesis",
-        );
+        this.expectType("CLOSE_PARENTHESIS", "Expected closing parenthesis");
         return expression;
 
       default:

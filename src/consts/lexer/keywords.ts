@@ -2,31 +2,31 @@ import { TokenType } from "./token-type";
 
 export const KEYWORDS: Record<string, TokenType> = {
   // Block-related keywords
-  SUGOD: TokenType.START_BLOCK,
-  KATAPUSAN: TokenType.END_BLOCK,
-  KUNG: TokenType.CONDITIONAL_BLOCK,
+  SUGOD: "START_BLOCK",
+  KATAPUSAN: "END_BLOCK",
+  KUNG: "CONDITIONAL_BLOCK",
 
   // Variable declaration
-  MUGNA: TokenType.VARIABLE_DECLARATION,
+  MUGNA: "VARIABLE_DECLARATION",
 
   // I/O statements
-  DAWAT: TokenType.INPUT_STATEMENTS,
-  IPAKITA: TokenType.OUTPUT_STATEMENTS,
+  DAWAT: "INPUT_STATEMENTS",
+  IPAKITA: "OUTPUT_STATEMENTS",
 
   // Logical operators
-  UG: TokenType.LOGICAL_OPERATOR,
-  O: TokenType.LOGICAL_OPERATOR,
-  DILI: TokenType.LOGICAL_OPERATOR,
+  UG: "LOGICAL_OPERATOR",
+  O: "LOGICAL_OPERATOR",
+  DILI: "LOGICAL_OPERATOR",
 
   // Boolean value
-  OO: TokenType.BOOLEAN_LITERAL,
+  OO: "BOOLEAN_LITERAL",
 
   // Loops
-  "ALANG SA": TokenType.FOR_LOOP,
+  "ALANG SA": "FOR_LOOP",
 
   // Data types
-  NUMERO: TokenType.DATATYPE,
-  LETRA: TokenType.DATATYPE,
-  TINUOD: TokenType.DATATYPE,
-  TIPIK: TokenType.DATATYPE,
+  NUMERO: "DATATYPE",
+  LETRA: "DATATYPE",
+  TINUOD: "DATATYPE",
+  TIPIK: "DATATYPE",
 };

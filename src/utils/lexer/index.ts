@@ -1,4 +1,3 @@
-import { StateType, END_STATES } from "../../consts/lexer/state-type";
 import { SKIPPABLE_SYMBOLS, SYMBOLS } from "../../consts/lexer/symbols";
 
 export function isSymbol(c: string): boolean {
@@ -7,14 +6,6 @@ export function isSymbol(c: string): boolean {
 
 export function isSkippable(c: string): boolean {
   return SKIPPABLE_SYMBOLS.has(c);
-}
-
-export function isEndState(stateType: StateType): boolean {
-  return END_STATES.has(stateType);
-}
-
-export function isResetState(stateType: StateType): boolean {
-  return isEndState(stateType) || stateType === StateType.START;
 }
 
 export function inputCleaning(input: string): string {
