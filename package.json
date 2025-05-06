@@ -13,5 +13,9 @@
     "start": "bun run src/index.ts",
     "test": "bun test",
     "dev": "bun --watch src/index.ts"
+  },
+  "dependencies": {
+    "@types/readline-sync": "^1.4.8",
+    "readline-sync": "^1.4.10"
   }
 }
