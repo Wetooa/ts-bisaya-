@@ -53,8 +53,8 @@ export class Parser {
     this.identifierDataTypes.set(identifier, dataType);
   }
 
-  private getIdentifierDataType(identifier: Token): DataType {
-    const dataType = identifier.value;
+  private getIdentifierDataType(identifierValue: string): DataType {
+    const dataType = identifierValue;
 
     if (dataType === "LETRA") return "CHAR";
     if (dataType === "TINUOD") return "BOOLEAN";
@@ -407,7 +407,7 @@ export class Parser {
       "Expected datatype following MUGNA keyword",
     );
 
-    const declarationDataType = this.getIdentifierDataType(dataType);
+    const declarationDataType = this.getIdentifierDataType(dataType.value);
 
     const result: VariableDeclaration = {
       type: "VARIABLE_DECLARATION",
@@ -494,7 +494,7 @@ export class Parser {
 
     if (this.currentToken.type === "ASSIGNMENT_OPERATOR") {
       this.eat();
-      const right = this.parseExpression();
+      const right = this.parseAssignmentExpression();
 
       this.assertExpressionDataTypeMatching(left, right);
 
@@ -514,7 +514,7 @@ export class Parser {
 
     while (!this.isEnd() && this.currentToken.type === "LOGICAL_OPERATOR") {
       const operator = this.eat()!.value;
-      const right = this.parseExpression();
+      const right = this.parseLogicalExpression();
 
       this.assertExpressionDataTypeMatching(left, right);
 
@@ -535,7 +535,7 @@ export class Parser {
 
     while (!this.isEnd() && this.currentToken.type === "RELATIONAL_OPERATOR") {
       const operator = this.eat()!.value;
-      const right = this.parseExpression();
+      const right = this.parseRelationalExpression();
 
       this.assertExpressionDataTypeMatching(left, right);
 
@@ -560,13 +560,13 @@ export class Parser {
       (this.currentToken.value === "+" || this.currentToken.value === "-")
     ) {
       const operator = this.eat()!.value;
-      const right = this.parseExpression();
+      const right = this.parseAdditiveExpression();
 
       this.assertExpressionDataTypeMatching(left, right);
 
       left = {
         type: "BINARY_EXPRESSION",
-        dataType: left.dataType,
+        dataType: left.dataType ? left.dataType : right.dataType,
         operator,
         left,
         right,
@@ -587,13 +587,13 @@ export class Parser {
         this.currentToken.value === "%")
     ) {
       const operator = this.eat()!.value;
-      const right = this.parseExpression();
+      const right = this.parseMultiplicativeExpression();
 
       this.assertExpressionDataTypeMatching(left, right);
 
       left = {
         type: "BINARY_EXPRESSION",
-        dataType: left.dataType,
+        dataType: left.dataType ? left.dataType : right.dataType,
         operator,
         left,
         right,
@@ -612,7 +612,7 @@ export class Parser {
       (token.value === "-" || token.value === "+")
     ) {
       this.eat();
-      const right = this.parseExpression();
+      const right = this.parsePrimaryExpression();
       const left = {
         type: "NUMERIC_LITERAL",
         value: 0,
@@ -632,7 +632,7 @@ export class Parser {
 
     if (token.type === "LOGICAL_OPERATOR" && token.value === "DILI") {
       this.eat();
-      const right = this.parseExpression();
+      const right = this.parsePrimaryExpression();
 
       if (right.dataType !== "BOOLEAN") {
         throw new DataTypeMismatchException(right.dataType, "BOOLEAN");

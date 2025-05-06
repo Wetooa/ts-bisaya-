@@ -238,7 +238,7 @@ export class Tokenizer {
         this.advance();
         break;
       case "$":
-        this.tokens.push(createToken("CARRIAGE_RETURN", char));
+        this.tokens.push(createToken("CARRIAGE_RETURN", "\n"));
         this.advance();
         break;
       case "+":

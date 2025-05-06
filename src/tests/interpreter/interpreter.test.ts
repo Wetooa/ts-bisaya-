@@ -19,12 +19,12 @@ describe("Interpreter", () => {
   });
 
   test("Perfect Testcases", () => {
-    const testcases = readTestCases();
+    const testcases = readTestCases(4);
 
     for (const testcase of testcases) {
       const output = run(testcase.input);
 
-      // expect(output).toBe(testcase.output);
+      expect(output).toBe(testcase.output);
     }
   });
 });

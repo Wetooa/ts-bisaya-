@@ -13,12 +13,12 @@ function getProjectRoot(): string {
   return path.resolve(process.cwd());
 }
 
-export function readTestCases(): TestCase[] {
+export function readTestCases(count = TESTCASE_LIMIT): TestCase[] {
   const testcases: TestCase[] = [];
   const projectRoot = getProjectRoot();
 
   // Read all test cases up to the limit
-  for (let i = 1; i <= TESTCASE_LIMIT; i++) {
+  for (let i = 1; i <= count; i++) {
     try {
       const inputPath = path.join(
         projectRoot,
