@@ -43,13 +43,13 @@ export function evaluate_numeric_expression(root: Expression) {
     return (root as NumericLiteral).value;
   } else if (root.type === "BINARY_EXPRESSION") {
     let leftValue: number = evaluate_numeric_expression(
-      (root as BinaryExpression).left
+      (root as BinaryExpression).left,
     );
     let rightValue: number = evaluate_numeric_expression(
-      (root as BinaryExpression).right
+      (root as BinaryExpression).right,
     );
     return eval(
-      `${leftValue} ${(root as BinaryExpression).operator} ${rightValue}`
+      `${leftValue} ${(root as BinaryExpression).operator} ${rightValue}`,
     );
   }
 }
@@ -63,7 +63,7 @@ function evaluate_variable_declaration(statement: Expression) {
       variableDictionary.set(variable.identifier, variable.value);
     } else {
       throw new InvalidVariableTypeError(
-        `${variable.value} is not compatible for ${dataType}`
+        `${variable.value} is not compatible for ${dataType}`,
       );
     }
   });
