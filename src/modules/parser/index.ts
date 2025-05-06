@@ -1,5 +1,11 @@
 import { TokenType } from "../../consts/lexer/token-type";
-import { ParserException } from "../../exceptions/parser";
+import type { DataType } from "../../consts/parser/datatype";
+import {
+  DataTypeMismatchException,
+  DatatypeNotFoundException,
+  IdentifierRedeclarationException,
+  ParserException,
+} from "../../exceptions/parser";
 import { type Token } from "../../types/lexer";
 import type {
   AssignmentExpression,
@@ -13,19 +19,43 @@ import type {
   NumericLiteral,
   OutputStatement,
   Program,
+  Statement,
+  StringLiteral,
   VariableDeclaration,
 } from "../../types/parser";
 
 export class Parser {
   private tokens: Token[] = [];
   private index = 0;
+  private identifierDataTypes = new Map<string, DataType>();
+  private isRepl;
 
-  constructor(tokens: Token[]) {
+  constructor(tokens: Token[], isRepl = false) {
     this.tokens = tokens;
+    this.isRepl = isRepl;
   }
 
   private get currentToken(): Token {
     return this.tokens[this.index] as Token;
+  }
+
+  private isIdentifierPresent(indentifier: string) {
+    return this.identifierDataTypes.has(indentifier);
+  }
+
+  private setIdentifierDataType(identifier: string, dataType: DataType) {
+    this.identifierDataTypes.set(identifier, dataType);
+  }
+
+  private getIdentifierDataType(identifier: Token): DataType {
+    const dataType = identifier.value;
+
+    if (dataType === "LETRA") return "CHAR";
+    if (dataType === "TINUOD") return "BOOLEAN";
+    if (dataType === "TIPIK") return "FLOAT";
+    if (dataType === "NUMERO") return "INT";
+
+    throw new DatatypeNotFoundException(dataType);
   }
 
   private eat() {
@@ -50,6 +80,12 @@ export class Parser {
   public parse(): Program {
     const program = { type: "PROGRAM", body: [] } as Program;
 
+    if (!this.isRepl) {
+      while (!this.isEnd() && this.currentToken.type !== "START_BLOCK") {
+        this.eat();
+      }
+    }
+
     while (!this.isEnd()) {
       const statement = this.parseStatement();
       if (statement) {
@@ -60,7 +96,7 @@ export class Parser {
     return program;
   }
 
-  private parseStatement(): Expression {
+  private parseStatement(): Statement {
     switch (this.currentToken.type) {
       case "VARIABLE_DECLARATION":
         return this.parseVariableDeclaration();
@@ -73,7 +109,7 @@ export class Parser {
     }
   }
 
-  private parseInputStatement(): Expression {
+  private parseInputStatement(): InputStatement {
     this.expectType("INPUT_STATEMENTS", "Expected input statement");
     this.expectType("COLON", "Expected colon after input statement");
 
@@ -102,7 +138,7 @@ export class Parser {
     return result;
   }
 
-  private parseOutputStatement(): Expression {
+  private parseOutputStatement(): OutputStatement {
     this.expectType("OUTPUT_STATEMENTS", "Expected output statement");
     this.expectType("COLON", "Expected colon after output statement");
 
@@ -113,7 +149,6 @@ export class Parser {
 
     while (true) {
       const identifier = this.expectType("IDENTIFIER", "Expected identifier");
-
       result.variables.push(identifier.value);
 
       if (this.currentToken.type === "AMPERSAND") {
@@ -134,7 +169,7 @@ export class Parser {
     return result;
   }
 
-  private parseVariableDeclaration(): Expression {
+  private parseVariableDeclaration(): VariableDeclaration {
     this.expectType("VARIABLE_DECLARATION", "Expected variable declaration");
 
     const dataType = this.expectType(
@@ -148,24 +183,34 @@ export class Parser {
       variables: [],
     };
 
+    const declarationDataType = this.getIdentifierDataType(dataType);
+
     while (true) {
       const identifier = this.expectType("IDENTIFIER", "Expected identifier");
 
+      if (this.isIdentifierPresent(identifier.value)) {
+        throw new IdentifierRedeclarationException(identifier);
+      }
+
+      this.setIdentifierDataType(identifier.value, declarationDataType);
+      let value = undefined;
+
       if (this.currentToken.type === "ASSIGNMENT_OPERATOR") {
         this.expectValue("=", "Expected equals assignment operator");
-        const value = this.parseExpression();
+        value = this.parseExpression();
 
-        if (value.type !== dataType.value) {
-          throw new ParserException("Type mismatch in assignment");
+        if (value.dataType !== declarationDataType) {
+          throw new DataTypeMismatchException(
+            value.dataType,
+            declarationDataType,
+          );
         }
-
-        result.variables.push({
-          identifier: identifier.value,
-          value,
-        });
-      } else {
-        result.variables.push({ identifier: identifier.value });
       }
+
+      result.variables.push({
+        identifier: identifier.value,
+        value,
+      });
 
       if (this.currentToken.type === "COMMA") {
         this.eat();
@@ -183,6 +228,12 @@ export class Parser {
     return result;
   }
 
+  private assertExpressionDataTypeMatching(a: Expression, b: Expression) {
+    if (a.dataType !== b.dataType) {
+      throw new DataTypeMismatchException(a.dataType, b.dataType);
+    }
+  }
+
   private parseExpression(): Expression {
     return this.parseAssignmentExpression();
   }
@@ -194,9 +245,7 @@ export class Parser {
       this.eat();
       const right = this.parseLogicalExpression();
 
-      if (right.type !== left.type) {
-        throw new ParserException("Type mismatch in assignment");
-      }
+      this.assertExpressionDataTypeMatching(left, right);
 
       left = {
         type: "ASSIGNMENT_EXPRESSION",
@@ -215,6 +264,8 @@ export class Parser {
     while (!this.isEnd() && this.currentToken.type === "LOGICAL_OPERATOR") {
       const operator = this.eat()!.value;
       const right = this.parseAdditiveExpression();
+
+      this.assertExpressionDataTypeMatching(left, right);
 
       left = {
         type: "BINARY_EXPRESSION",
@@ -238,6 +289,8 @@ export class Parser {
     ) {
       const operator = this.eat()!.value;
       const right = this.parseMultiplicativeExpression();
+
+      this.assertExpressionDataTypeMatching(left, right);
 
       left = {
         type: "BINARY_EXPRESSION",
@@ -264,6 +317,8 @@ export class Parser {
       const operator = this.eat()!.value;
       const right = this.parsePrimaryExpression();
 
+      this.assertExpressionDataTypeMatching(left, right);
+
       left = {
         type: "BINARY_EXPRESSION",
         dataType: left.dataType,
@@ -284,32 +339,42 @@ export class Parser {
         return {
           type: "IDENTIFIER",
           value: this.eat()!.value,
-          dataType: token.
         } as Identifier;
 
       case "WHOLE_NUMERIC_LITERAL":
         return {
           type: "NUMERIC_LITERAL",
           value: parseInt(this.eat()!.value),
+          dataType: "INT",
         } as NumericLiteral;
 
       case "DECIMAL_NUMERIC_LITERAL":
         return {
           type: "NUMERIC_LITERAL",
           value: parseFloat(this.eat()!.value),
+          dataType: "FLOAT",
         } as NumericLiteral;
 
       case "BOOLEAN_LITERAL":
         return {
           type: "BOOLEAN_LITERAL",
           value: !!this.eat()!.value,
+          dataType: "BOOLEAN",
         } as BooleanLiteral;
 
       case "CHAR_LITERAL":
         return {
           type: "CHAR_LITERAL",
           value: this.eat()!.value,
+          dataType: "CHAR",
         } as CharLiteral;
+
+      case "STRING":
+        return {
+          type: "STRING_LITERAL",
+          value: this.eat()!.value,
+          dataType: "STRING",
+        } as StringLiteral;
 
       case "OPEN_PARENTHESIS":
         this.eat();
@@ -328,7 +393,7 @@ export class Parser {
 }
 
 // Factory function for backward compatibility
-export function parse(input: Token[]): Program {
-  const parser = new Parser(input);
+export function parse(input: Token[], isRepl: boolean): Program {
+  const parser = new Parser(input, isRepl);
   return parser.parse();
 }

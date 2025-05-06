@@ -9,9 +9,11 @@ export class Tokenizer {
   private input: string;
   private tokens: Token[] = [];
   private position = 0;
+  private isRepl;
 
-  constructor(input: string) {
+  constructor(input: string, isRepl: boolean) {
     this.input = input;
+    this.isRepl = isRepl;
   }
 
   public tokenize(): Token[] {
@@ -273,7 +275,7 @@ export class Tokenizer {
 }
 
 // Helper function to maintain compatibility with existing code
-export function tokenize(input: string): Token[] {
-  const tokenizer = new Tokenizer(input);
+export function tokenize(input: string, isRepl: boolean): Token[] {
+  const tokenizer = new Tokenizer(input, isRepl);
   return tokenizer.tokenize();
 }

@@ -1,6 +1,6 @@
-import type { DATA_TYPE } from "../../consts/parser/datatype";
+import type { DataType } from "../../consts/parser/datatype";
 
-export const ASTNodeTypes = [
+export const AST_NODE_TYPES = [
   "PROGRAM",
 
   "VARIABLE_DECLARATION",
@@ -16,24 +16,25 @@ export const ASTNodeTypes = [
   "IDENTIFIER",
 
   "CHAR_LITERAL",
+  "STRING_LITERAL",
   "BOOLEAN_LITERAL",
   "NUMERIC_LITERAL",
 
   "NULL_LITERAL",
 ] as const;
+export type ASTNodeTypes = (typeof AST_NODE_TYPES)[number];
 
 export interface Statement {
-  type: (typeof ASTNodeTypes)[number];
+  type: ASTNodeTypes;
 }
 
 export interface Program extends Statement {
   type: "PROGRAM";
-  body: Expression[];
+  body: Statement[];
 }
 
 export interface VariableDeclaration extends Statement {
   type: "VARIABLE_DECLARATION";
-
   dataType: string;
 
   variables: {
@@ -53,7 +54,7 @@ export interface OutputStatement extends Statement {
 }
 
 export interface Expression extends Statement {
-  dataType: (typeof DATA_TYPE)[number];
+  dataType: DataType;
 }
 
 export interface AssignmentExpression extends Expression {
@@ -82,6 +83,11 @@ export interface NumericLiteral extends Expression {
 
 export interface CharLiteral extends Expression {
   type: "CHAR_LITERAL";
+  value: string;
+}
+
+export interface StringLiteral extends Expression {
+  type: "STRING_LITERAL";
   value: string;
 }
 
