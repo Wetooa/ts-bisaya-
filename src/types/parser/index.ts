@@ -50,7 +50,21 @@ export interface InputStatement extends Statement {
 
 export interface OutputStatement extends Statement {
   type: "OUTPUT_STATEMENT";
-  variables: string[];
+  variables: Array<
+    | { type: "IDENTIFIER"; identifierName: string }
+    | { type: "LITERAL"; value: string | number }
+  >;
+}
+
+export interface IfStatement extends Statement {
+  type: "IF_STATEMENT";
+  condition: Expression;
+  body: Statement[];
+  elseIf?: {
+    condition: Expression;
+    body: Statement[];
+  }[];
+  elseBody?: Statement[];
 }
 
 export interface Expression extends Statement {

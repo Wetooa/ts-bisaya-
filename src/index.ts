@@ -16,24 +16,26 @@ async function repl() {
       break;
     }
 
-    run(input);
+    run(input, true);
   }
 
   rl.close();
   console.log("Goodbye!");
 }
 
-function run(input: string) {
+export function run(input: string, isRepl = false) {
   try {
-    const tokens = tokenize(input, true);
+    const tokens = tokenize(input, isRepl);
     console.log(`You entered: ${input}`);
     console.log("Tokens:", tokens);
 
-    const ast = parse(tokens, true);
+    const ast = parse(tokens, isRepl);
     console.log("AST:", ast);
   } catch (error) {
     console.error("Error:", error);
   }
+
+  return "";
 }
 
 repl();

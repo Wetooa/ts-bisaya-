@@ -189,17 +189,19 @@ export class Tokenizer {
   }
 
   private tokenizeEscapedChar(): void {
-    let value = this.consumeChar(); // Get opening bracket
+    this.consumeChar(); // Get opening bracket
 
-    while (this.peek() !== "]" && this.position < this.input.length) {
-      value += this.consumeChar();
+    if (this.position + 1 >= this.input.length) {
+      throw new LexerException(
+        "Invalid escaped character syntax, reached end of input",
+      );
+    }
+    if (this.peek(1) !== "]") {
+      throw new LexerException("Invalid escaped character syntax");
     }
 
-    if (this.position >= this.input.length) {
-      throw new LexerException("Unterminated escaped character");
-    }
-
-    value += this.consumeChar(); // Add closing bracket
+    const value = this.consumeChar();
+    this.consumeChar(); // Get closing bracket
     this.tokens.push(createToken("ESCAPED_CHAR", value));
   }
 
@@ -276,7 +278,7 @@ export class Tokenizer {
 }
 
 // Helper function to maintain compatibility with existing code
-export function tokenize(input: string, isRepl: boolean): Token[] {
+export function tokenize(input: string, isRepl: boolean = false): Token[] {
   const tokenizer = new Tokenizer(input, isRepl);
   return tokenizer.tokenize();
 }

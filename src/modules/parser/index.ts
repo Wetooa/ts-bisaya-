@@ -98,16 +98,26 @@ export class Parser {
     const program = { type: "PROGRAM", body: [] } as Program;
 
     if (!this.isRepl) {
-      while (!this.isEnd() && this.currentToken.type !== "START_BLOCK") {
-        this.eat();
-      }
+      this.expectType("START_BLOCK", "Expected SUGOD to start program");
     }
 
-    while (!this.isEnd()) {
+    while (!this.isEnd() && this.currentToken.type !== "END_BLOCK") {
       const statement = this.parseStatement();
+      console.log(statement);
       if (statement) {
         program.body.push(statement);
       }
+    }
+
+    if (!this.isRepl) {
+      this.expectType("END_BLOCK", "Expected KATAPUSAN to end program");
+
+      // FIX: add logic here if program hasnt ended
+      // if (!this.isEnd()) {
+      //   throw new ParserException(
+      //     "Unexpected end of input, expected program body",
+      //   );
+      // }
     }
 
     return program;
@@ -130,9 +140,6 @@ export class Parser {
     }
   }
 
-  // /**
-  //  * Parses a conditional statement (KUNG condition SUGOD statements KATAPUSAN)
-  //  */
   // private parseConditionalStatement(): Statement {
   //   this.expectType(
   //     "CONDITIONAL_DECLARATION",
@@ -185,7 +192,7 @@ export class Parser {
   //     elseBlock,
   //   };
   // }
-  //
+
   // /**
   //  * Parses a for loop statement (ALANG SA variable = start TO end SUGOD statements KATAPUSAN)
   //  */
@@ -292,8 +299,52 @@ export class Parser {
     };
 
     while (true) {
-      const identifier = this.expectType("IDENTIFIER", "Expected identifier");
-      result.variables.push(identifier.value);
+      switch (this.currentToken.type) {
+        case "STRING": {
+          const stringLiteral = this.expectType("STRING", "Expected string");
+          result.variables.push({
+            type: "LITERAL",
+            value: stringLiteral.value,
+          });
+          break;
+        }
+
+        case "ESCAPED_CHAR": {
+          const charLiteral = this.expectType("ESCAPED_CHAR", "Expected char");
+          result.variables.push({ type: "LITERAL", value: charLiteral.value });
+          break;
+        }
+
+        case "BOOLEAN_LITERAL": {
+          const booleanLiteral = this.expectType(
+            "BOOLEAN_LITERAL",
+            "Expected boolean literal",
+          );
+          result.variables.push({
+            type: "LITERAL",
+            value: booleanLiteral.value,
+          });
+          break;
+        }
+
+        case "CARRIAGE_RETURN": {
+          this.eat();
+          result.variables.push({ type: "LITERAL", value: "\n" });
+          continue;
+        }
+
+        case "IDENTIFIER": {
+          const identifier = this.expectType(
+            "IDENTIFIER",
+            "Expected identifier",
+          );
+          result.variables.push({
+            type: "IDENTIFIER",
+            identifierName: identifier.value,
+          });
+          break;
+        }
+      }
 
       if (this.currentToken.type === "AMPERSAND") {
         this.eat();
@@ -321,13 +372,13 @@ export class Parser {
       "Expected datatype following MUGNA keyword",
     );
 
+    const declarationDataType = this.getIdentifierDataType(dataType);
+
     const result: VariableDeclaration = {
       type: "VARIABLE_DECLARATION",
-      dataType: dataType.value,
+      dataType: declarationDataType,
       variables: [],
     };
-
-    const declarationDataType = this.getIdentifierDataType(dataType);
 
     while (true) {
       const identifier = this.expectType("IDENTIFIER", "Expected identifier");
@@ -373,7 +424,11 @@ export class Parser {
   }
 
   private assertExpressionDataTypeMatching(a: Expression, b: Expression) {
-    if (a.dataType !== b.dataType) {
+    if (
+      a.dataType !== undefined &&
+      b.dataType !== undefined &&
+      a.dataType !== b.dataType
+    ) {
       throw new DataTypeMismatchException(a.dataType, b.dataType);
     }
   }
@@ -405,7 +460,7 @@ export class Parser {
 
       left = {
         type: "ASSIGNMENT_EXPRESSION",
-        dataType: left.dataType,
+        dataType: left.dataType === undefined ? right.dataType : left.dataType,
         assignee: left,
         value: right,
       } as AssignmentExpression;
@@ -615,7 +670,7 @@ export class Parser {
 }
 
 // Factory function for backward compatibility
-export function parse(input: Token[], isRepl: boolean): Program {
+export function parse(input: Token[], isRepl: boolean = false): Program {
   const parser = new Parser(input, isRepl);
   return parser.parse();
 }

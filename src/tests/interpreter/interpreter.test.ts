@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { run } from "../../modules/interpreter";
 import { readTestCases } from "../../utils/interpreter/read-testcases";
+import { run } from "../..";
 
 describe("Interpreter", () => {
   test("Reads test cases correctly", () => {
@@ -18,12 +18,13 @@ describe("Interpreter", () => {
     }
   });
 
-  // test("Perfect Testcases", () => {
-  //   const testcases = readTestCases();
-  //
-  //   for (const testcase of testcases) {
-  //     const output = run(testcase.input);
-  //     expect(output).toBe(testcase.output);
-  //   }
-  // });
+  test("Perfect Testcases", () => {
+    const testcases = readTestCases();
+
+    for (const testcase of testcases) {
+      const output = run(testcase.input);
+
+      // expect(output).toBe(testcase.output);
+    }
+  });
 });

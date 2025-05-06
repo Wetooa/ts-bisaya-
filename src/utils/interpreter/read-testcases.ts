@@ -1,9 +1,9 @@
 const TESTCASE_LIMIT = 100;
 
 import path from "path";
+import type TestCase from "../../types/interpreter/testcase";
 import { fileExists, readFile } from "./read-file";
 import { InterpreterException } from "../../exceptions/interpreter";
-import type TestCase from "../../types/interpreter/testcase";
 
 /**
  * Gets the absolute path to the project root directory
