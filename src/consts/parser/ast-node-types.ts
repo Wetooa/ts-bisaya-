@@ -1,8 +1,16 @@
-export const ASTNodeTypes = {
+export const ASTNodeType = {
   PROGRAM: "PROGRAM",
-  NUMERIC_LITERAL: "NUMERIC_LITERAL",
-  IDENTIFIER: "IDENTIFIER",
+
+  VARIABLE_DECLARATION: "VARIABLE_DECLARATION",
+
   BINARY_EXPRESSION: "BINARY_EXPRESSION",
+
+  IDENTIFIER: "IDENTIFIER",
+
+  CHAR_LITERAL: "CHAR_LITERAL",
+  NUMERIC_LITERAL: "NUMERIC_LITERAL",
+  BOOLEAN_LITERAL: "BOOLEAN_LITERAL",
+  NULL_LITERAL: "NULL_LITERAL",
 } as const;
 
-export type ASTNodeTypes = (typeof ASTNodeTypes)[keyof typeof ASTNodeTypes];
+export type ASTNodeType = (typeof ASTNodeType)[keyof typeof ASTNodeType];

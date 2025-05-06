@@ -103,9 +103,10 @@ export const transitions: Record<StateType, TransitionFunction> = {
   },
 
   [StateType.ASSIGNMENT_OPERATOR_BEGIN]: (c: string): StateType => {
-    return c === "="
-      ? StateType.ASSIGNMENT_OPERATOR
-      : StateType.ARITHMETIC_OPERATOR_END;
+    if (c === "=" || isSkippable(c)) {
+      return StateType.ASSIGNMENT_OPERATOR;
+    }
+    return StateType.ARITHMETIC_OPERATOR_END;
   },
 
   [StateType.ASSIGNMENT_OPERATOR]: () => StateType.ASSIGNMENT_OPERATOR_END,
@@ -133,7 +134,14 @@ export const transitions: Record<StateType, TransitionFunction> = {
   [StateType.SINGLE_QUOTE]: (c: string): StateType => {
     return c === "'"
       ? StateType.SINGLE_QUOTE_LAST_QUOTE
-      : StateType.SINGLE_QUOTE;
+      : StateType.SINGLE_QUOTE_CHAR;
+  },
+
+  [StateType.SINGLE_QUOTE_CHAR]: (c: string): StateType => {
+    if (c === "'") {
+      return StateType.SINGLE_QUOTE_LAST_QUOTE;
+    }
+    throw new UnknownCharacterException();
   },
 
   [StateType.SINGLE_QUOTE_LAST_QUOTE]: () => StateType.SINGLE_QUOTE_END,

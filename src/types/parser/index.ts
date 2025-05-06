@@ -1,12 +1,23 @@
-import { ASTNodeTypes } from "../../consts/parser/ast-node-types";
+import type { ASTNodeType } from "../../consts/parser/ast-node-types";
 
 export interface Statement {
-  type: ASTNodeTypes;
+  type: (typeof ASTNodeType)[keyof typeof ASTNodeType];
 }
 
 export interface Program extends Statement {
   type: "PROGRAM";
   body: Expression[];
+}
+
+export interface VariableDeclaration extends Statement {
+  type: "VARIABLE_DECLARATION";
+
+  dataType: string;
+
+  variables: {
+    identifier: string;
+    value?: Expression;
+  }[];
 }
 
 export interface Expression extends Statement {}
@@ -26,4 +37,18 @@ export interface Identifier extends Expression {
 export interface NumericLiteral extends Expression {
   type: "NUMERIC_LITERAL";
   value: number;
+}
+
+export interface CharLiteral extends Expression {
+  type: "CHAR_LITERAL";
+  value: string;
+}
+
+export interface BooleanLiteral extends Expression {
+  type: "CHAR_LITERAL";
+  value: boolean;
+}
+
+export interface NullLiteral extends Expression {
+  type: "NULL_LITERAL";
 }
