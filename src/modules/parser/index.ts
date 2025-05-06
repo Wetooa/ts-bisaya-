@@ -5,7 +5,6 @@ import {
   DatatypeNotFoundException,
   IdentifierNotFoundException,
   IdentifierRedeclarationException,
-  InvalidCodeBlocksException,
   ParserException,
   UnexpectedTokenException,
 } from "../../exceptions/parser";
@@ -42,7 +41,7 @@ export class Parser {
   }
 
   private get currentToken(): Token {
-    return this.tokens[this.index] as Token;
+    return this.peek() as Token;
   }
 
   private isIdentifierPresent(indentifier: string) {
@@ -53,15 +52,31 @@ export class Parser {
     this.identifierDataTypes.set(identifier, dataType);
   }
 
-  private getIdentifierDataType(identifier: Token): DataType {
-    const dataType = identifier.value;
+  private getIdentifierDataType(identifierValue: string): DataType {
+    const dataType = identifierValue;
 
     if (dataType === "LETRA") return "CHAR";
     if (dataType === "TINUOD") return "BOOLEAN";
     if (dataType === "TIPIK") return "FLOAT";
     if (dataType === "NUMERO") return "INT";
 
-    throw new DatatypeNotFoundException(dataType);
+    throw new DatatypeNotFoundException(dataType, this.currentLine);
+  }
+
+  private getDataType(identifier: Expression): DataType {
+    if (identifier.type !== "IDENTIFIER") {
+      return identifier.dataType as DataType;
+    }
+
+    const dataType = this.identifierDataTypes.get(identifier.value as string);
+
+    if (dataType === undefined) {
+      throw new IdentifierNotFoundException(
+        identifier.value as string,
+        this.currentLine,
+      );
+    }
+    return dataType;
   }
 
   private eat() {
@@ -71,15 +86,28 @@ export class Parser {
     return this.tokens[this.index++] as Token;
   }
 
+  private peek(offset: number = 0): Token | undefined {
+    const index = this.index + offset;
+    return index < this.tokens.length ? this.tokens[index] : undefined;
+  }
+
+  private get currentLine(): number {
+    let line = 1;
+    for (let i = 0; i < this.index; i++) {
+      if (this.tokens[i]!.type === "NEWLINE") line++;
+    }
+    return line;
+  }
+
   private expectType(tokenType: TokenType, errorMsg = "Unexpected token type") {
     if (this.isEnd() || this.currentToken.type === tokenType) return this.eat();
-    throw new UnexpectedTokenException(errorMsg);
+    throw new UnexpectedTokenException(errorMsg, this.currentLine);
   }
 
   private expectValue(tokenValue: string, errorMsg = "Unexpected token value") {
     if (this.isEnd() || this.currentToken.value === tokenValue)
       return this.eat();
-    throw new UnexpectedTokenException(errorMsg);
+    throw new UnexpectedTokenException(errorMsg, this.currentLine);
   }
 
   private expectTypeAndValue(
@@ -94,22 +122,34 @@ export class Parser {
     ) {
       return this.eat();
     }
-    throw new UnexpectedTokenException(errorMsg);
+    throw new UnexpectedTokenException(errorMsg, this.currentLine);
   }
 
   private isEnd() {
     return this.currentToken.type === "EOF";
   }
 
+  private removeSkippableTokens() {
+    while (
+      !this.isEnd() &&
+      (this.currentToken.type === "NEWLINE" ||
+        this.currentToken.type === "NULL")
+    ) {
+      this.eat();
+    }
+  }
+
   public parse(): Program {
     const program = { type: "PROGRAM", body: [] } as Program;
 
     if (!this.isRepl) {
+      this.removeSkippableTokens();
       this.expectType("START_BLOCK", "Expected SUGOD to start program");
     }
 
     while (!this.isEnd() && this.currentToken.type !== "END_BLOCK") {
       const statement = this.parseStatement();
+      console.log(statement);
       if (statement) {
         program.body.push(statement);
       }
@@ -117,6 +157,7 @@ export class Parser {
 
     if (!this.isRepl) {
       this.expectType("END_BLOCK", "Expected KATAPUSAN to end program");
+      this.removeSkippableTokens();
     }
 
     return program;
@@ -142,11 +183,17 @@ export class Parser {
   private parseCondition(): Expression {
     this.expectType("OPEN_PARENTHESIS", "Expected opening parenthesis");
     const condition = this.parseExpression();
+    const dataType = this.getDataType(condition);
+
     if (condition.dataType !== "BOOLEAN") {
-      throw new DataTypeMismatchException(condition.dataType, "BOOLEAN");
+      throw new DataTypeMismatchException(
+        "BOOLEAN",
+        dataType,
+        this.currentLine,
+      );
     }
     this.expectType("CLOSE_PARENTHESIS", "Expected closing parenthesis");
-    this.expectType("NEWLINE", "Expected newline after condition");
+    this.removeSkippableTokens();
     return condition;
   }
 
@@ -170,7 +217,7 @@ export class Parser {
     }
 
     this.expectType("CLOSE_CURLY_BRACE", "Expected closing curly brace");
-    this.expectType("NEWLINE", "Expected newline after code block");
+    this.removeSkippableTokens();
     return codeBlock;
   }
 
@@ -192,7 +239,11 @@ export class Parser {
 
     while (
       !this.isEnd() &&
-      this.currentToken.type === "CONDITIONAL_DECLARATION"
+      this.currentToken.type === "CONDITIONAL_DECLARATION" &&
+      this.peek(1) !== undefined &&
+      ((this.peek(1)!.type === "LOGICAL_OPERATOR" &&
+        this.peek(1)!.value === "DILI") ||
+        this.peek(1)!.type === "ELSE_BLOCK_DECLARATION")
     ) {
       this.eat();
       const currentToken = this.currentToken.type as TokenType;
@@ -213,7 +264,7 @@ export class Parser {
 
       if (currentToken === "ELSE_BLOCK_DECLARATION") {
         this.eat();
-        this.expectType("NEWLINE", "Expected newline after DILI");
+        this.removeSkippableTokens();
         ifStatement.else = this.parseCodeBlock();
         break;
       }
@@ -250,7 +301,11 @@ export class Parser {
     const startValue = this.parseExpression();
 
     if (startValue.dataType !== "INT" && startValue.dataType !== "FLOAT") {
-      throw new DataTypeMismatchException(startValue.dataType, "numeric type");
+      throw new DataTypeMismatchException(
+        startValue.dataType,
+        "numeric type",
+        this.currentLine,
+      );
     }
 
     this.expectType("COMMA", "Expected comma after start value");
@@ -259,7 +314,11 @@ export class Parser {
     const condition = this.parseExpression();
 
     if (condition.dataType !== "BOOLEAN") {
-      throw new DataTypeMismatchException(condition.dataType, "BOOLEAN");
+      throw new DataTypeMismatchException(
+        condition.dataType,
+        "BOOLEAN",
+        this.currentLine,
+      );
     }
 
     this.expectType("COMMA", "Expected comma after condition");
@@ -306,7 +365,10 @@ export class Parser {
         break;
       }
 
-      throw new ParserException("Expected comma or newline after identifier");
+      throw new ParserException(
+        "Expected comma or newline after identifier",
+        this.currentLine,
+      );
     }
 
     return result;
@@ -393,6 +455,7 @@ export class Parser {
 
       throw new ParserException(
         "Expected ampersand or newline after identifier",
+        this.currentLine,
       );
     }
 
@@ -407,7 +470,7 @@ export class Parser {
       "Expected datatype following MUGNA keyword",
     );
 
-    const declarationDataType = this.getIdentifierDataType(dataType);
+    const declarationDataType = this.getIdentifierDataType(dataType.value);
 
     const result: VariableDeclaration = {
       type: "VARIABLE_DECLARATION",
@@ -419,7 +482,10 @@ export class Parser {
       const identifier = this.expectType("IDENTIFIER", "Expected identifier");
 
       if (this.isIdentifierPresent(identifier.value)) {
-        throw new IdentifierRedeclarationException(identifier);
+        throw new IdentifierRedeclarationException(
+          identifier,
+          this.currentLine,
+        );
       }
 
       this.setIdentifierDataType(identifier.value, declarationDataType);
@@ -431,8 +497,9 @@ export class Parser {
 
         if (value.dataType !== declarationDataType) {
           throw new DataTypeMismatchException(
-            value.dataType,
             declarationDataType,
+            value.dataType,
+            this.currentLine,
           );
         }
       }
@@ -452,19 +519,21 @@ export class Parser {
         break;
       }
 
-      throw new ParserException("Expected comma or newline after identifier");
+      throw new ParserException(
+        "Expected comma or newline after identifier",
+        this.currentLine,
+      );
     }
 
     return result;
   }
 
   private assertExpressionDataTypeMatching(a: Expression, b: Expression) {
-    if (
-      a.dataType !== undefined &&
-      b.dataType !== undefined &&
-      a.dataType !== b.dataType
-    ) {
-      throw new DataTypeMismatchException(a.dataType, b.dataType);
+    const x = this.getDataType(a);
+    const y = this.getDataType(b);
+
+    if (x !== y) {
+      throw new DataTypeMismatchException(x, y, this.currentLine);
     }
   }
 
@@ -472,7 +541,10 @@ export class Parser {
     if (left.type === "IDENTIFIER") {
       const identifier = left as Identifier;
       if (!this.isIdentifierPresent(identifier.value)) {
-        throw new IdentifierNotFoundException(left as Identifier);
+        throw new IdentifierNotFoundException(
+          left.value as string,
+          this.currentLine,
+        );
       }
     }
   }
@@ -494,7 +566,7 @@ export class Parser {
 
     if (this.currentToken.type === "ASSIGNMENT_OPERATOR") {
       this.eat();
-      const right = this.parseExpression();
+      const right = this.parseAssignmentExpression();
 
       this.assertExpressionDataTypeMatching(left, right);
 
@@ -514,8 +586,15 @@ export class Parser {
 
     while (!this.isEnd() && this.currentToken.type === "LOGICAL_OPERATOR") {
       const operator = this.eat()!.value;
-      const right = this.parseExpression();
+      const right = this.parseLogicalExpression();
 
+      this.assertExpressionDataTypeMatching(
+        {
+          type: "BOOLEAN_LITERAL",
+          dataType: "BOOLEAN",
+        },
+        left,
+      );
       this.assertExpressionDataTypeMatching(left, right);
 
       left = {
@@ -535,7 +614,7 @@ export class Parser {
 
     while (!this.isEnd() && this.currentToken.type === "RELATIONAL_OPERATOR") {
       const operator = this.eat()!.value;
-      const right = this.parseExpression();
+      const right = this.parseRelationalExpression();
 
       this.assertExpressionDataTypeMatching(left, right);
 
@@ -560,13 +639,13 @@ export class Parser {
       (this.currentToken.value === "+" || this.currentToken.value === "-")
     ) {
       const operator = this.eat()!.value;
-      const right = this.parseExpression();
+      const right = this.parseAdditiveExpression();
 
       this.assertExpressionDataTypeMatching(left, right);
 
       left = {
         type: "BINARY_EXPRESSION",
-        dataType: left.dataType,
+        dataType: left.dataType ? left.dataType : right.dataType,
         operator,
         left,
         right,
@@ -587,13 +666,13 @@ export class Parser {
         this.currentToken.value === "%")
     ) {
       const operator = this.eat()!.value;
-      const right = this.parseExpression();
+      const right = this.parseMultiplicativeExpression();
 
       this.assertExpressionDataTypeMatching(left, right);
 
       left = {
         type: "BINARY_EXPRESSION",
-        dataType: left.dataType,
+        dataType: left.dataType ? left.dataType : right.dataType,
         operator,
         left,
         right,
@@ -612,7 +691,7 @@ export class Parser {
       (token.value === "-" || token.value === "+")
     ) {
       this.eat();
-      const right = this.parseExpression();
+      const right = this.parsePrimaryExpression();
       const left = {
         type: "NUMERIC_LITERAL",
         value: 0,
@@ -632,10 +711,14 @@ export class Parser {
 
     if (token.type === "LOGICAL_OPERATOR" && token.value === "DILI") {
       this.eat();
-      const right = this.parseExpression();
+      const right = this.parsePrimaryExpression();
 
       if (right.dataType !== "BOOLEAN") {
-        throw new DataTypeMismatchException(right.dataType, "BOOLEAN");
+        throw new DataTypeMismatchException(
+          right.dataType,
+          "BOOLEAN",
+          this.currentLine,
+        );
       }
 
       const value = right.value as BooleanLiteral;
@@ -650,7 +733,7 @@ export class Parser {
     switch (token.type) {
       case "IDENTIFIER":
         if (!this.isIdentifierPresent(token.value)) {
-          throw new IdentifierNotFoundException(token);
+          throw new IdentifierNotFoundException(token.value, this.currentLine);
         }
 
         return {
@@ -704,7 +787,10 @@ export class Parser {
         return {} as NullLiteral;
 
       default:
-        throw new Error(`Unexpected token type: ${token.type}`);
+        throw new UnexpectedTokenException(
+          `Unexpected token type: ${token.type}`,
+          this.currentLine,
+        );
     }
   }
 }

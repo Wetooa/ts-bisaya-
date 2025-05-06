@@ -1,3 +1,4 @@
+import { interpret } from "./modules/interpreter";
 import { tokenize } from "./modules/lexer";
 import { parse } from "./modules/parser";
 
@@ -10,7 +11,6 @@ async function repl() {
 
   while (true) {
     const input = (await rl.question("> ")) + "\n";
-    console.log("Input:", input);
 
     if (input === "exit") {
       break;
@@ -24,18 +24,23 @@ async function repl() {
 }
 
 export function run(input: string, isRepl = false) {
+  console.log(`You entered: ${input}`);
+  let output = "";
+
   try {
     const tokens = tokenize(input, isRepl);
-    console.log(`You entered: ${input}`);
     console.log("Tokens:", tokens);
 
     const ast = parse(tokens, isRepl);
     console.log("AST:", ast);
+
+    output = interpret(ast);
+    console.log("Output:", output);
   } catch (error) {
     console.error("Error:", error);
   }
 
-  return "";
+  return output;
 }
 
 repl();
