@@ -62,9 +62,10 @@ export enum StateType {
   ALPHABETIC_END,
 
   DIGIT_WHOLE,
-  DIGIT_AFTER_E,
-  DIGIT_DECIMAL,
   DIGIT_END,
+
+  DIGIT_DECIMAL,
+  DIGIT_DECIMAL_END,
 }
 
 export const END_STATES = new Set([
@@ -74,6 +75,7 @@ export const END_STATES = new Set([
   StateType.ARITHMETIC_OPERATOR_END,
   StateType.ASSIGNMENT_OPERATOR_END,
   StateType.DIGIT_END,
+  StateType.DIGIT_DECIMAL_END,
   StateType.ALPHABETIC_END,
   StateType.AMPERSAND_END,
   StateType.COMMA_END,

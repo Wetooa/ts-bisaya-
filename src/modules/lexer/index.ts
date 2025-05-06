@@ -91,7 +91,13 @@ export function tokenize(input: string): Token[] {
           break;
 
         case StateType.DIGIT_END:
-          tokens.push(createToken(TokenType.NUMERIC_LITERAL, tokenValue));
+          tokens.push(createToken(TokenType.WHOLE_NUMERIC_LITERAL, tokenValue));
+          break;
+
+        case StateType.DIGIT_DECIMAL_END:
+          tokens.push(
+            createToken(TokenType.DECIMAL_NUMERIC_LITERAL, tokenValue),
+          );
           break;
 
         case StateType.ALPHABETIC_END:

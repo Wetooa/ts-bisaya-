@@ -83,10 +83,11 @@ export class Parser {
     };
 
     const DATATYPE_TO_AST_NODE_TYPE: Record<string, ASTNodeType> = {
-        "CHAR_LITERAL": ASTNodeType.CHAR_LITERAL,
-        "NUMERIC_LITERAL": ASTNodeType.NUMERIC_LITERAL,
-        "BOOLEAN_LITERAL": ASTNodeType.BOOLEAN_LITERAL,
-    }
+      CHAR_LITERAL: ASTNodeType.CHAR_LITERAL,
+      WHOLE_NUMERIC_LITERAL: ASTNodeType.NUMERIC_LITERAL,
+      BOOLEAN_LITERAL: ASTNodeType.BOOLEAN_LITERAL,
+      DECIMAL_NUMERIC_LITERAL: ASTNodeType.NUMERIC_LITERAL,
+    };
 
     while (true) {
       const identifier = this.expectType(
@@ -98,7 +99,9 @@ export class Parser {
         this.expectValue("=", "Expected equals assignment operator");
         const value = this.parseExpression();
 
-        if ()
+        if (value.type !== DATATYPE_TO_AST_NODE_TYPE[dataType.value]) {
+          throw new ParserException("Type mismatch in assignment");
+        }
 
         result.variables.push({
           identifier: identifier.value,
@@ -190,7 +193,13 @@ export class Parser {
           type: ASTNodeType.NULL_LITERAL,
         } as NullLiteral;
 
-      case TokenType.NUMERIC_LITERAL:
+      case TokenType.WHOLE_NUMERIC_LITERAL:
+        return {
+          type: ASTNodeType.NUMERIC_LITERAL,
+          value: parseInt(this.eat()!.value),
+        } as NumericLiteral;
+
+      case TokenType.DECIMAL_NUMERIC_LITERAL:
         return {
           type: ASTNodeType.NUMERIC_LITERAL,
           value: parseFloat(this.eat()!.value),
