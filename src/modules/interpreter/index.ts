@@ -4,7 +4,9 @@ import type { AST, ASTNode } from "../../types/interpreter";
 import type {
   BinaryExpression,
   Expression,
+  InputStatement,
   NumericLiteral,
+  OutputStatement,
   Program,
   VariableDeclaration,
 } from "../../types/parser";
@@ -18,10 +20,19 @@ export default function interpret(lines: Program) {
 }
 
 function interpret_helper(expression: Expression) {
-  if (expression.type === "BINARY_EXPRESSION") {
-    evaluate_numeric_expression(expression as BinaryExpression);
-  } else if (expression.type === "VARIABLE_DECLARATION") {
-    evaluate_variable_declaration(expression as VariableDeclaration);
+  switch (expression.type) {
+    case "BINARY_EXPRESSION":
+      evaluate_numeric_expression(expression as BinaryExpression);
+      break;
+    case "VARIABLE_DECLARATION":
+      evaluate_variable_declaration(expression as VariableDeclaration);
+      break;
+    case "INPUT_STATEMENT":
+      evaluate_dawat(expression as InputStatement);
+      break;
+    case "OUTPUT_STATEMENT":
+      evaluate_ipakita(expression as OutputStatement);
+      break;
   }
 }
 
@@ -32,13 +43,13 @@ export function evaluate_numeric_expression(root: Expression) {
     return (root as NumericLiteral).value;
   } else if (root.type === "BINARY_EXPRESSION") {
     let leftValue: number = evaluate_numeric_expression(
-      (root as BinaryExpression).left,
+      (root as BinaryExpression).left
     );
     let rightValue: number = evaluate_numeric_expression(
-      (root as BinaryExpression).right,
+      (root as BinaryExpression).right
     );
     return eval(
-      `${leftValue} ${(root as BinaryExpression).operator} ${rightValue}`,
+      `${leftValue} ${(root as BinaryExpression).operator} ${rightValue}`
     );
   }
 }
@@ -52,7 +63,7 @@ function evaluate_variable_declaration(statement: Expression) {
       variableDictionary.set(variable.identifier, variable.value);
     } else {
       throw new InvalidVariableTypeError(
-        `${variable.value} is not compatible for ${dataType}`,
+        `${variable.value} is not compatible for ${dataType}`
       );
     }
   });
@@ -75,41 +86,29 @@ function checkVariable(element: any, data_type: string) {
 }
 
 // IPAKITA
-function evaluate_ipakita(head: ASTNode) {
-  var printStack: string[] = [];
-  parseIpakita(head.left as ASTNode, printStack);
-
+function evaluate_ipakita(expression: Expression) {
   let res = "";
-  printStack.forEach((elem) => {
-    if (elem === "&") {
-      return;
-    } else {
-      res += variableDictionary.get(elem);
+
+  (expression as OutputStatement).variables.forEach((variable) => {
+    switch (variable) {
+      case "&":
+        res += "";
+        break;
+      default:
+        res += variableDictionary.get(variable);
     }
   });
+
   console.log(res);
 }
 
-function parseIpakita(head: ASTNode, printStack: string[]) {
-  if (head.value === "&") {
-    parseIpakita(head.left as ASTNode, printStack);
-    printStack.push(head.value);
-    parseIpakita(head.right as ASTNode, printStack);
-  } else {
-    printStack.push(head.value);
-  }
-}
-
 // DAWAT
-async function evaluate_dawat(head: ASTNode) {
-  let variables = [];
+async function evaluate_dawat(expression: Expression) {
+  let variables: string[] = [];
 
-  head = head.left!;
-
-  while (head) {
-    variables.push(head.value);
-    head = head.right!;
-  }
+  (expression as InputStatement).variables.forEach((variable) => {
+    variables.push(variable);
+  });
 
   const line1 = readline.question("");
 
