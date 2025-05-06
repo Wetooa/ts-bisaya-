@@ -35,4 +35,6 @@ export enum TokenType {
   NUMBER,
 
   DATATYPE,
+
+  EOF,
 }

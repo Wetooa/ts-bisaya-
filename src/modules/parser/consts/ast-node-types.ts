@@ -1,0 +1,6 @@
+export const enum ASTNodeTypes {
+  PROGRAM,
+  NUMERIC_LITERAL,
+  IDENTIFIER,
+  BINARY_EXPRESSION,
+}

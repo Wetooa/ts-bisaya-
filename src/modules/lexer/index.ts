@@ -1,11 +1,11 @@
-import { LexerException } from "../../exceptions/lexer";
-import type { Token } from "../../types/lexer/token";
 import { KEYWORDS } from "../../consts/lexer/keywords";
 import { StateType } from "../../consts/lexer/state-type";
 import { TokenType } from "../../consts/lexer/token-type";
+import { LexerException } from "../../exceptions/lexer";
+import type { Token } from "../../types/lexer/token";
+import { inputCleaning, isResetState } from "../../utils/lexer";
 import { createToken } from "./token";
 import { transition } from "./tokenizer-state";
-import { inputCleaning, isResetState } from "../../utils/lexer";
 
 export function tokenize(input: string): Token[] {
   input = inputCleaning(input);
@@ -123,5 +123,6 @@ export function tokenize(input: string): Token[] {
     }
   }
 
+  tokens.push(createToken(TokenType.EOF, "EOF"));
   return tokens;
 }
