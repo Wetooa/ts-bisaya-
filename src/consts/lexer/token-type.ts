@@ -32,9 +32,7 @@ export enum TokenType {
   COLON,
 
   STRING,
-  NUMBER,
+  NUMERIC_LITERAL,
 
   DATATYPE,
-
-  EOF,
 }

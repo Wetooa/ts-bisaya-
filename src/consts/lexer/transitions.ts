@@ -64,17 +64,42 @@ export const transitions: Record<StateType, TransitionFunction> = {
   },
 
   [StateType.LESS_THAN_ARITHMETIC_OPERATOR]: (c: string): StateType => {
-    if (c === ">" || c === "=" || isSkippable(c)) {
+    if (c === "=") {
+      return StateType.NOT_EQUAL_ARITHMETIC_OPERATOR;
+    }
+    if (c === ">") {
+      return StateType.LESS_THAN_OR_EQUAL_ARITHMETIC_OPERATOR;
+    }
+    if (isSkippable(c)) {
       return StateType.ARITHMETIC_OPERATOR_END;
     }
     throw new UnknownCharacterException();
   },
 
   [StateType.GREATER_THAN_ARITHMETIC_OPERATOR]: (c: string): StateType => {
-    if (c === "=" || isSkippable(c)) {
+    if (c === "=") {
+      return StateType.GREATER_THAN_OR_EQUAL_ARITHMETIC_OPERATOR;
+    }
+    if (isSkippable(c)) {
       return StateType.ARITHMETIC_OPERATOR_END;
     }
     throw new UnknownCharacterException();
+  },
+
+  [StateType.LESS_THAN_OR_EQUAL_ARITHMETIC_OPERATOR]: function (
+    _c: string,
+  ): StateType {
+    return StateType.ARITHMETIC_OPERATOR_END;
+  },
+
+  [StateType.GREATER_THAN_OR_EQUAL_ARITHMETIC_OPERATOR]: function (
+    _c: string,
+  ): StateType {
+    return StateType.ARITHMETIC_OPERATOR_END;
+  },
+
+  [StateType.NOT_EQUAL_ARITHMETIC_OPERATOR]: function (_c: string): StateType {
+    return StateType.ARITHMETIC_OPERATOR_END;
   },
 
   [StateType.ASSIGNMENT_OPERATOR_BEGIN]: (c: string): StateType => {

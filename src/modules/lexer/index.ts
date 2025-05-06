@@ -2,7 +2,7 @@ import { KEYWORDS } from "../../consts/lexer/keywords";
 import { StateType } from "../../consts/lexer/state-type";
 import { TokenType } from "../../consts/lexer/token-type";
 import { LexerException } from "../../exceptions/lexer";
-import type { Token } from "../../types/lexer/token";
+import type { Token } from "../../types/lexer";
 import { inputCleaning, isResetState } from "../../utils/lexer";
 import { createToken } from "./token";
 import { transition } from "./tokenizer-state";
@@ -29,22 +29,22 @@ export function tokenize(input: string): Token[] {
       }
     }
 
-    console.log(`${c} ${StateType[state]}`);
+    // console.log(`${c} ${StateType[state]}`);
 
     if (isResetState(state)) {
       const tokenValue = value.trim();
 
       switch (state) {
         case StateType.START:
-          console.log(`Encountered a start state: ${StateType[state]}`);
+          // console.log(`Encountered a start state: ${StateType[state]}`);
           break;
 
         case StateType.SKIPPABLE_END:
-          console.log(`Encountered a skippable character: ${tokenValue}`);
+          // console.log(`Encountered a skippable character: ${tokenValue}`);
           break;
 
         case StateType.COMMENT_END:
-          console.log(`Encountered a comment: ${tokenValue}`);
+          // console.log(`Encountered a comment: ${tokenValue}`);
           break;
 
         case StateType.ARITHMETIC_OPERATOR_END:
@@ -93,7 +93,7 @@ export function tokenize(input: string): Token[] {
           break;
 
         case StateType.DIGIT_END:
-          tokens.push(createToken(TokenType.NUMBER, tokenValue));
+          tokens.push(createToken(TokenType.NUMERIC_LITERAL, tokenValue));
           break;
 
         case StateType.ALPHABETIC_END:
@@ -123,6 +123,5 @@ export function tokenize(input: string): Token[] {
     }
   }
 
-  tokens.push(createToken(TokenType.EOF, "EOF"));
   return tokens;
 }
