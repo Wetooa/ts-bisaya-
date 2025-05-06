@@ -8,7 +8,8 @@ import { createToken } from "./token";
 import { transition } from "./tokenizer-state";
 
 export function tokenize(input: string): Token[] {
-  input = inputCleaning(input);
+  // input = inputCleaning(input);
+  input += "\n";
 
   const tokens: Token[] = [];
   let state: StateType = StateType.START;
@@ -70,7 +71,7 @@ export function tokenize(input: string): Token[] {
           if (content === "OO" || content === "DILI") {
             tokens.push(createToken(TokenType.BOOLEAN_LITERAL, content));
           } else {
-            tokens.push(createToken(TokenType.STRING, tokenValue));
+            tokens.push(createToken(TokenType.STRING, content));
           }
           break;
 

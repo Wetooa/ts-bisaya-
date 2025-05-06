@@ -1,15 +1,16 @@
 import { TokenType } from "../../consts/lexer/token-type";
-import { ASTNodeType } from "../../consts/parser/ast-node-types";
 import { ParserException } from "../../exceptions/parser";
 import { type Token } from "../../types/lexer";
 import type {
   AssignmentExpression,
   BinaryExpression,
+  BooleanLiteral,
   CharLiteral,
   Expression,
   Identifier,
-  NullLiteral,
+  InputStatement,
   NumericLiteral,
+  OutputStatement,
   Program,
   VariableDeclaration,
 } from "../../types/parser";
@@ -46,7 +47,7 @@ export class Parser {
   }
 
   public parse(): Program {
-    const program = { type: ASTNodeType.PROGRAM, body: [] } as Program;
+    const program = { type: "PROGRAM", body: [] } as Program;
 
     while (!this.isEnd()) {
       const statement = this.parseStatement();
@@ -62,20 +63,79 @@ export class Parser {
     switch (this.currentToken.type) {
       case TokenType.VARIABLE_DECLARATION:
         return this.parseVariableDeclaration();
-      // case TokenType.INPUT_STATEMENTS:
-      //   return this.parseInputStatement();
-      // case TokenType.OUTPUT_STATEMENTS:
-      //   return this.parseOutputStatement();
+      case TokenType.INPUT_STATEMENTS:
+        return this.parseInputStatement();
+      case TokenType.OUTPUT_STATEMENTS:
+        return this.parseOutputStatement();
       default:
         return this.parseExpression();
     }
   }
 
-  // private parseInputStatement(): Expression {
-  // }
+  private parseInputStatement(): Expression {
+    this.expectType(TokenType.INPUT_STATEMENTS, "Expected input statement");
+    this.expectType(TokenType.COLON, "Expected colon after input statement");
 
-  // private parseOutputStatement(): Expression {
-  // }
+    const result: InputStatement = {
+      type: "INPUT_STATEMENT",
+      variables: [],
+    };
+
+    while (true) {
+      const identifier = this.expectType(
+        TokenType.IDENTIFIER,
+        "Expected identifier",
+      );
+      result.variables.push(identifier.value);
+
+      if (this.currentToken.type === TokenType.COMMA) {
+        this.eat();
+        continue;
+      }
+
+      if (this.currentToken.type === TokenType.NEWLINE) {
+        this.eat();
+        break;
+      }
+
+      throw new ParserException("Expected comma or newline after identifier");
+    }
+
+    return result;
+  }
+
+  private parseOutputStatement(): Expression {
+    this.expectType(TokenType.OUTPUT_STATEMENTS, "Expected output statement");
+    this.expectType(TokenType.COLON, "Expected colon after output statement");
+
+    const result: OutputStatement = {
+      type: "OUTPUT_STATEMENT",
+      variables: [],
+    };
+
+    while (true) {
+      const identifier = this.expectType(
+        TokenType.IDENTIFIER,
+        "Expected identifier",
+      );
+
+      result.variables.push(identifier.value);
+
+      if (this.currentToken.type === TokenType.AMPERSAND) {
+        this.eat();
+        continue;
+      }
+
+      if (this.currentToken.type === TokenType.NEWLINE) {
+        this.eat();
+        break;
+      }
+
+      throw new ParserException("Expected comma or newline after identifier");
+    }
+
+    return result;
+  }
 
   private parseVariableDeclaration(): Expression {
     this.expectType(
@@ -94,14 +154,6 @@ export class Parser {
       variables: [],
     };
 
-    const DATATYPE_TO_AST_NODE_TYPE: Record<string, ASTNodeType> = {
-      CHAR_LITERAL: ASTNodeType.CHAR_LITERAL,
-      BOOLEAN_LITERAL: ASTNodeType.BOOLEAN_LITERAL,
-
-      WHOLE_NUMERIC_LITERAL: ASTNodeType.NUMERIC_LITERAL,
-      DECIMAL_NUMERIC_LITERAL: ASTNodeType.NUMERIC_LITERAL,
-    };
-
     while (true) {
       const identifier = this.expectType(
         TokenType.IDENTIFIER,
@@ -112,10 +164,9 @@ export class Parser {
         this.expectValue("=", "Expected equals assignment operator");
         const value = this.parseExpression();
 
-        // NOTE: dunno where this is supposed to be
-        // if (value.type !== DATATYPE_TO_AST_NODE_TYPE[dataType.value]) {
-        //   throw new ParserException("Type mismatch in assignment");
-        // }
+        if (value.type !== dataType.value) {
+          throw new ParserException("Type mismatch in assignment");
+        }
 
         result.variables.push({
           identifier: identifier.value,
@@ -125,33 +176,45 @@ export class Parser {
         result.variables.push({ identifier: identifier.value });
       }
 
-      if (this.isEnd() || this.currentToken.type !== TokenType.COMMA) {
+      if (this.currentToken.type === TokenType.COMMA) {
+        this.eat();
+        continue;
+      }
+
+      if (this.currentToken.type === TokenType.NEWLINE) {
+        this.eat();
         break;
       }
 
-      this.eat();
+      throw new ParserException("Expected comma or newline after identifier");
     }
 
     return result;
   }
 
   private parseExpression(): Expression {
-    const left = this.parseAssignmentExpression();
+    return this.parseAssignmentExpression();
+  }
+
+  private parseAssignmentExpression(): Expression {
+    let left = this.parseLogicalExpression();
 
     if (this.currentToken.type === TokenType.ASSIGNMENT_OPERATOR) {
       this.eat();
-      const value = this.parseExpression();
-      return {
+      const right = this.parseLogicalExpression();
+
+      if (right.type !== left.type) {
+        throw new ParserException("Type mismatch in assignment");
+      }
+
+      left = {
         assignee: left,
-        value,
+        value: right,
+        dataType: left.type,
       } as AssignmentExpression;
     }
 
     return left;
-  }
-
-  private parseAssignmentExpression(): Expression {
-    return this.parseLogicalExpression();
   }
 
   private parseLogicalExpression(): Expression {
@@ -163,8 +226,9 @@ export class Parser {
     ) {
       const operator = this.eat()!.value;
       const right = this.parseAdditiveExpression();
+
       left = {
-        type: ASTNodeType.BINARY_EXPRESSION,
+        type: "BINARY_EXPRESSION",
         operator,
         left,
         right,
@@ -209,7 +273,7 @@ export class Parser {
       const right = this.parsePrimaryExpression();
 
       left = {
-        type: ASTNodeType.BINARY_EXPRESSION,
+        type: "BINARY_EXPRESSION",
         operator,
         left,
         right,
@@ -225,33 +289,28 @@ export class Parser {
     switch (token.type) {
       case TokenType.IDENTIFIER:
         return {
-          type: ASTNodeType.IDENTIFIER,
           value: this.eat()!.value,
         } as Identifier;
 
       case TokenType.WHOLE_NUMERIC_LITERAL:
         return {
-          type: ASTNodeType.NUMERIC_LITERAL,
           value: parseInt(this.eat()!.value),
         } as NumericLiteral;
 
       case TokenType.DECIMAL_NUMERIC_LITERAL:
         return {
-          type: ASTNodeType.NUMERIC_LITERAL,
           value: parseFloat(this.eat()!.value),
         } as NumericLiteral;
 
+      case TokenType.BOOLEAN_LITERAL:
+        return {
+          value: !!this.eat()!.value,
+        } as BooleanLiteral;
+
       case TokenType.CHAR_LITERAL:
         return {
-          type: ASTNodeType.CHAR_LITERAL,
           value: this.eat()!.value,
         } as CharLiteral;
-
-      case TokenType.NULL:
-        this.eat();
-        return {
-          type: ASTNodeType.NULL_LITERAL,
-        } as NullLiteral;
 
       case TokenType.OPEN_PARENTHESIS:
         this.eat();

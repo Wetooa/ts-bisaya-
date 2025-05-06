@@ -9,7 +9,7 @@ async function repl() {
   console.log('Welcome to the REPL! Type "exit" to quit.');
 
   while (true) {
-    const input = await rl.question("> ");
+    const input = (await rl.question("> ")) + "\n";
     console.log("Input:", input);
 
     if (input === "exit") {

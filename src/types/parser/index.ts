@@ -1,7 +1,27 @@
-import type { ASTNodeType } from "../../consts/parser/ast-node-types";
+export const ASTNodeTypes = [
+  "PROGRAM",
+
+  "VARIABLE_DECLARATION",
+  "INPUT_STATEMENT",
+  "OUTPUT_STATEMENT",
+
+  "IF_STATEMENT",
+  "FOR_LOOP",
+
+  "ASSIGNMENT_EXPRESSION",
+  "BINARY_EXPRESSION",
+
+  "IDENTIFIER",
+
+  "CHAR_LITERAL",
+  "BOOLEAN_LITERAL",
+  "NUMERIC_LITERAL",
+
+  "NULL_LITERAL",
+] as const;
 
 export interface Statement {
-  type: (typeof ASTNodeType)[keyof typeof ASTNodeType];
+  type: (typeof ASTNodeTypes)[number];
 }
 
 export interface Program extends Statement {
@@ -20,25 +40,38 @@ export interface VariableDeclaration extends Statement {
   }[];
 }
 
-export interface AssignmentExpression extends Statement {
-  type: "ASSIGNMENT_EXPRESSION";
+export interface InputStatement extends Statement {
+  type: "INPUT_STATEMENT";
+  variables: string[];
+}
 
-  assignee: Expression;
-  value: Expression;
+export interface OutputStatement extends Statement {
+  type: "OUTPUT_STATEMENT";
+  variables: string[];
 }
 
 export interface Expression extends Statement {}
+
+export interface AssignmentExpression extends Expression {
+  type: "ASSIGNMENT_EXPRESSION";
+
+  dataType: string;
+  assignee: Expression;
+  value: Expression;
+}
 
 export interface BinaryExpression extends Expression {
   type: "BINARY_EXPRESSION";
   left: Expression;
   right: Expression;
+  dataType: string;
   operator: string;
 }
 
 export interface Identifier extends Expression {
   type: "IDENTIFIER";
   value: string;
+  dataType: string;
 }
 
 export interface NumericLiteral extends Expression {
@@ -54,8 +87,4 @@ export interface CharLiteral extends Expression {
 export interface BooleanLiteral extends Expression {
   type: "BOOLEAN_LITERAL";
   value: boolean;
-}
-
-export interface NullLiteral extends Expression {
-  type: "NULL_LITERAL";
 }

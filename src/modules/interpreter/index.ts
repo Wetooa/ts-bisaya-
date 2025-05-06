@@ -26,7 +26,6 @@ function interpret_helper(expression: Expression) {
 }
 
 // Evaluate functions
-
 // Numeric
 export function evaluate_numeric_expression(root: Expression) {
   if (root.type === "NUMERIC_LITERAL") {
@@ -38,7 +37,6 @@ export function evaluate_numeric_expression(root: Expression) {
     let rightValue: number = evaluate_numeric_expression(
       (root as BinaryExpression).right,
     );
-
     return eval(
       `${leftValue} ${(root as BinaryExpression).operator} ${rightValue}`,
     );
@@ -46,7 +44,6 @@ export function evaluate_numeric_expression(root: Expression) {
 }
 
 // Variable declaration
-
 function evaluate_variable_declaration(statement: Expression) {
   let dataType = (statement as VariableDeclaration).dataType;
 
@@ -55,14 +52,13 @@ function evaluate_variable_declaration(statement: Expression) {
       variableDictionary.set(variable.identifier, variable.value);
     } else {
       throw new InvalidVariableTypeError(
-        `${variable.value} is not compatible for ${dataType}`
+        `${variable.value} is not compatible for ${dataType}`,
       );
     }
   });
 }
 
 // MUGNA HELPERS
-
 function checkVariable(element: any, data_type: string) {
   switch (data_type) {
     case "LETRA":
