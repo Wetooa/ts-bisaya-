@@ -241,7 +241,7 @@ export class Tokenizer {
         break;
       case "=":
         if (this.peek(1) === "=") {
-          this.tokens.push(createToken("ARITHMETIC_OPERATOR", "=="));
+          this.tokens.push(createToken("RELATIONAL_OPERATOR", "=="));
           this.advance(2);
         } else {
           this.tokens.push(createToken("ASSIGNMENT_OPERATOR", char));
@@ -250,22 +250,22 @@ export class Tokenizer {
         break;
       case "<":
         if (this.peek(1) === "=") {
-          this.tokens.push(createToken("ARITHMETIC_OPERATOR", "<="));
+          this.tokens.push(createToken("RELATIONAL_OPERATOR", "<="));
           this.advance(2);
         } else if (this.peek(1) === ">") {
-          this.tokens.push(createToken("ARITHMETIC_OPERATOR", "<>"));
+          this.tokens.push(createToken("RELATIONAL_OPERATOR", "<>"));
           this.advance(2);
         } else {
-          this.tokens.push(createToken("ARITHMETIC_OPERATOR", char));
+          this.tokens.push(createToken("RELATIONAL_OPERATOR", char));
           this.advance();
         }
         break;
       case ">":
         if (this.peek(1) === "=") {
-          this.tokens.push(createToken("ARITHMETIC_OPERATOR", ">="));
+          this.tokens.push(createToken("RELATIONAL_OPERATOR", ">="));
           this.advance(2);
         } else {
-          this.tokens.push(createToken("ARITHMETIC_OPERATOR", char));
+          this.tokens.push(createToken("RELATIONAL_OPERATOR", char));
           this.advance();
         }
         break;

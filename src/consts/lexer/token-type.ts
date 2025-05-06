@@ -30,6 +30,7 @@ export const TokenType = [
 
   // Operators
   "LOGICAL_OPERATOR",
+  "RELATIONAL_OPERATOR",
   "ARITHMETIC_OPERATOR",
   "ASSIGNMENT_OPERATOR",
 

@@ -6,6 +6,7 @@ import {
   IdentifierNotFoundException,
   IdentifierRedeclarationException,
   ParserException,
+  UnexpectedTokenException,
 } from "../../exceptions/parser";
 import { type Token } from "../../types/lexer";
 import type {
@@ -65,13 +66,28 @@ export class Parser {
 
   private expectType(tokenType: TokenType, errorMsg = "Unexpected token type") {
     if (this.isEnd() || this.currentToken.type === tokenType) return this.eat();
-    throw new ParserException(errorMsg);
+    throw new UnexpectedTokenException(errorMsg);
   }
 
   private expectValue(tokenValue: string, errorMsg = "Unexpected token value") {
     if (this.isEnd() || this.currentToken.value === tokenValue)
       return this.eat();
-    throw new ParserException(errorMsg);
+    throw new UnexpectedTokenException(errorMsg);
+  }
+
+  private expectTypeAndValue(
+    tokenType: TokenType,
+    tokenValue: string,
+    errorMsg = "Unexpected token",
+  ) {
+    if (
+      this.isEnd() ||
+      (this.currentToken.type === tokenType &&
+        this.currentToken.value === tokenValue)
+    ) {
+      return this.eat();
+    }
+    throw new UnexpectedTokenException(errorMsg);
   }
 
   private isEnd() {
@@ -105,10 +121,137 @@ export class Parser {
         return this.parseInputStatement();
       case "OUTPUT_STATEMENTS":
         return this.parseOutputStatement();
+      // case "CONDITIONAL_DECLARATION":
+      //   return this.parseConditionalStatement();
+      // case "FOR_LOOP_DECLARATION":
+      //   return this.parseForLoopStatement();
       default:
         return this.parseExpression();
     }
   }
+
+  // /**
+  //  * Parses a conditional statement (KUNG condition SUGOD statements KATAPUSAN)
+  //  */
+  // private parseConditionalStatement(): Statement {
+  //   this.expectType(
+  //     "CONDITIONAL_DECLARATION",
+  //     "Expected conditional declaration",
+  //   );
+  //
+  //   // Parse the condition
+  //   const condition = this.parseExpression();
+  //
+  //   // Check if condition is boolean
+  //   if (condition.dataType !== "BOOLEAN") {
+  //     throw new DataTypeMismatchException(condition.dataType, "BOOLEAN");
+  //   }
+  //
+  //   // Parse the body of the if statement
+  //   this.expectType("START_BLOCK", "Expected SUGOD to start conditional block");
+  //
+  //   const ifBlock: Statement[] = [];
+  //
+  //   // Parse statements until we reach an END_BLOCK or CODE_BLOCK_DECLARATION
+  //   while (
+  //     !this.isEnd() &&
+  //     this.currentToken.type !== "END_BLOCK" &&
+  //     this.currentToken.type !== "CODE_BLOCK_DECLARATION"
+  //   ) {
+  //     const statement = this.parseStatement();
+  //     ifBlock.push(statement);
+  //   }
+  //
+  //   let elseBlock: Statement[] = [];
+  //
+  //   // Check if there's an else block
+  //   if (this.currentToken.type === "CODE_BLOCK_DECLARATION") {
+  //     this.eat(); // Consume the PUNDOK token
+  //
+  //     // Parse the else block until END_BLOCK
+  //     while (!this.isEnd() && this.currentToken.type !== "END_BLOCK") {
+  //       const statement = this.parseStatement();
+  //       elseBlock.push(statement);
+  //     }
+  //   }
+  //
+  //   // Ensure we have an END_BLOCK
+  //   this.expectType("END_BLOCK", "Expected KATAPUSAN to end conditional block");
+  //
+  //   return {
+  //     type: "IF_STATEMENT",
+  //     condition,
+  //     ifBlock,
+  //     elseBlock,
+  //   };
+  // }
+  //
+  // /**
+  //  * Parses a for loop statement (ALANG SA variable = start TO end SUGOD statements KATAPUSAN)
+  //  */
+  // private parseForLoopStatement(): Statement {
+  //   this.expectTypeAndValue(
+  //     "FOR_LOOP_DECLARATION",
+  //     "ALANG",
+  //     "Expected For Loop ALANG",
+  //   );
+  //   this.expectTypeAndValue(
+  //     "FOR_LOOP_DECLARATION",
+  //     "SA",
+  //     "Expected For Loop SA",
+  //   );
+  //
+  //   // Parse the loop variable and initialization
+  //   const variable = this.expectType(
+  //     "IDENTIFIER",
+  //     "Expected identifier for loop variable",
+  //   );
+  //
+  //   this.expectType("ASSIGNMENT_OPERATOR", "Expected assignment operator");
+  //   const startValue = this.parseExpression();
+  //
+  //   // Check that start value is numeric
+  //   if (startValue.dataType !== "INT" && startValue.dataType !== "FLOAT") {
+  //     throw new DataTypeMismatchException(startValue.dataType, "numeric type");
+  //   }
+  //
+  //   // Expect the "TO" keyword (we'll need to add this to keywords and token types)
+  //   // For now, we'll just check for a specific identifier
+  //   const toKeyword = this.expectType("IDENTIFIER", "Expected TO keyword");
+  //   if (toKeyword.value !== "TO") {
+  //     throw new ParserException("Expected TO keyword in for loop");
+  //   }
+  //
+  //   // Parse the end value expression
+  //   const endValue = this.parseExpression();
+  //
+  //   // Check that end value is numeric
+  //   if (endValue.dataType !== "INT" && endValue.dataType !== "FLOAT") {
+  //     throw new DataTypeMismatchException(endValue.dataType, "numeric type");
+  //   }
+  //
+  //   // Parse the body of the for loop
+  //   this.expectType("START_BLOCK", "Expected SUGOD to start for loop block");
+  //
+  //   const body: Statement[] = [];
+  //
+  //   // Parse statements until we reach an END_BLOCK
+  //   while (!this.isEnd() && this.currentToken.type !== "END_BLOCK") {
+  //     const statement = this.parseStatement();
+  //     body.push(statement);
+  //   }
+  //
+  //   // Ensure we have an END_BLOCK
+  //   this.expectType("END_BLOCK", "Expected KATAPUSAN to end for loop block");
+  //
+  //   return {
+  //     type: "FOR_LOOP",
+  //     variable: variable.value,
+  //     startValue,
+  //     endValue,
+  //     body,
+  //   };
+  // }
 
   private parseInputStatement(): InputStatement {
     this.expectType("INPUT_STATEMENTS", "Expected input statement");
@@ -235,6 +378,15 @@ export class Parser {
     }
   }
 
+  private assertExpressionPresent(left: Expression) {
+    if (left.type === "IDENTIFIER") {
+      const identifier = left as Identifier;
+      if (!this.isIdentifierPresent(identifier.value)) {
+        throw new IdentifierNotFoundException(left as Identifier);
+      }
+    }
+  }
+
   private parseExpression(): Expression {
     return this.parseAssignmentExpression();
   }
@@ -243,16 +395,11 @@ export class Parser {
     let left = this.parseLogicalExpression();
 
     // NOTE: IF IT'S AN IDENTIFIER, CHECK IF IT'S DECLARED
-    if (left.type === "IDENTIFIER") {
-      const identifier = left as Identifier;
-      if (!this.isIdentifierPresent(identifier.value)) {
-        throw new IdentifierNotFoundException(left as Identifier);
-      }
-    }
+    this.assertExpressionPresent(left);
 
     if (this.currentToken.type === "ASSIGNMENT_OPERATOR") {
       this.eat();
-      const right = this.parseAssignmentExpression();
+      const right = this.parseExpression();
 
       this.assertExpressionDataTypeMatching(left, right);
 
@@ -268,17 +415,38 @@ export class Parser {
   }
 
   private parseLogicalExpression(): Expression {
-    let left = this.parseAdditiveExpression();
+    let left = this.parseRelationalExpression();
 
     while (!this.isEnd() && this.currentToken.type === "LOGICAL_OPERATOR") {
       const operator = this.eat()!.value;
-      const right = this.parseAssignmentExpression();
+      const right = this.parseExpression();
 
       this.assertExpressionDataTypeMatching(left, right);
 
       left = {
         type: "BINARY_EXPRESSION",
-        dataType: left.dataType,
+        dataType: "BOOLEAN",
+        operator,
+        left,
+        right,
+      } as BinaryExpression;
+    }
+
+    return left;
+  }
+
+  private parseRelationalExpression(): Expression {
+    let left = this.parseAdditiveExpression();
+
+    while (!this.isEnd() && this.currentToken.type === "RELATIONAL_OPERATOR") {
+      const operator = this.eat()!.value;
+      const right = this.parseExpression();
+
+      this.assertExpressionDataTypeMatching(left, right);
+
+      left = {
+        type: "BINARY_EXPRESSION",
+        dataType: "BOOLEAN",
         operator,
         left,
         right,
@@ -297,7 +465,7 @@ export class Parser {
       (this.currentToken.value === "+" || this.currentToken.value === "-")
     ) {
       const operator = this.eat()!.value;
-      const right = this.parseAssignmentExpression();
+      const right = this.parseExpression();
 
       this.assertExpressionDataTypeMatching(left, right);
 
@@ -324,7 +492,7 @@ export class Parser {
         this.currentToken.value === "%")
     ) {
       const operator = this.eat()!.value;
-      const right = this.parseAssignmentExpression();
+      const right = this.parseExpression();
 
       this.assertExpressionDataTypeMatching(left, right);
 
@@ -349,7 +517,7 @@ export class Parser {
       (token.value === "-" || token.value === "+")
     ) {
       this.eat();
-      const right = this.parsePrimaryExpression();
+      const right = this.parseExpression();
       const left = {
         type: "NUMERIC_LITERAL",
         value: 0,
@@ -369,7 +537,7 @@ export class Parser {
 
     if (token.type === "LOGICAL_OPERATOR" && token.value === "DILI") {
       this.eat();
-      const right = this.parsePrimaryExpression();
+      const right = this.parseExpression();
 
       if (right.dataType !== "BOOLEAN") {
         throw new DataTypeMismatchException(right.dataType, "BOOLEAN");
@@ -386,6 +554,10 @@ export class Parser {
 
     switch (token.type) {
       case "IDENTIFIER":
+        if (!this.isIdentifierPresent(token.value)) {
+          throw new IdentifierNotFoundException(token);
+        }
+
         return {
           type: "IDENTIFIER",
           value: this.eat()!.value,

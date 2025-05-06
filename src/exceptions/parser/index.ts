@@ -14,6 +14,13 @@ export class DataTypeMismatchException extends ParserException {
   }
 }
 
+export class UnexpectedTokenException extends ParserException {
+  constructor(msg: string) {
+    super(`Unexpected token: ${msg}`);
+    this.name = "UnexpectedTokenException";
+  }
+}
+
 export class IdentifierNotFoundException extends ParserException {
   constructor(identifier: Token) {
     super(`Identifier "${identifier.value}" not found.`);
