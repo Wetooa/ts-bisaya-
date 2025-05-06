@@ -9,6 +9,7 @@ import type {
   Expression,
   Identifier,
   InputStatement,
+  NullLiteral,
   NumericLiteral,
   OutputStatement,
   Program,
@@ -198,6 +199,7 @@ export class Parser {
       }
 
       left = {
+        type: "ASSIGNMENT_EXPRESSION",
         assignee: left,
         value: right,
         dataType: left.type,
@@ -237,6 +239,7 @@ export class Parser {
       const right = this.parseMultiplicativeExpression();
 
       left = {
+        type: "BINARY_EXPRESSION",
         operator,
         left,
         right,
@@ -276,26 +279,31 @@ export class Parser {
     switch (token.type) {
       case "IDENTIFIER":
         return {
+          type: "IDENTIFIER",
           value: this.eat()!.value,
         } as Identifier;
 
       case "WHOLE_NUMERIC_LITERAL":
         return {
+          type: "NUMERIC_LITERAL",
           value: parseInt(this.eat()!.value),
         } as NumericLiteral;
 
       case "DECIMAL_NUMERIC_LITERAL":
         return {
+          type: "NUMERIC_LITERAL",
           value: parseFloat(this.eat()!.value),
         } as NumericLiteral;
 
       case "BOOLEAN_LITERAL":
         return {
+          type: "BOOLEAN_LITERAL",
           value: !!this.eat()!.value,
         } as BooleanLiteral;
 
       case "CHAR_LITERAL":
         return {
+          type: "CHAR_LITERAL",
           value: this.eat()!.value,
         } as CharLiteral;
 
@@ -304,6 +312,10 @@ export class Parser {
         const expression = this.parseExpression();
         this.expectType("CLOSE_PARENTHESIS", "Expected closing parenthesis");
         return expression;
+
+      case "NEWLINE":
+        this.eat();
+        return {} as NullLiteral;
 
       default:
         throw new Error(`Unexpected token type: ${token.type}`);

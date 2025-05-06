@@ -88,3 +88,7 @@ export interface BooleanLiteral extends Expression {
   type: "BOOLEAN_LITERAL";
   value: boolean;
 }
+
+export interface NullLiteral extends Expression {
+  type: "NULL_LITERAL";
+}
