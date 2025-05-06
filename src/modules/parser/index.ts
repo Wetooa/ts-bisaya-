@@ -200,9 +200,9 @@ export class Parser {
 
       left = {
         type: "ASSIGNMENT_EXPRESSION",
+        dataType: left.dataType,
         assignee: left,
         value: right,
-        dataType: left.type,
       } as AssignmentExpression;
     }
 
@@ -218,6 +218,7 @@ export class Parser {
 
       left = {
         type: "BINARY_EXPRESSION",
+        dataType: left.dataType,
         operator,
         left,
         right,
@@ -240,6 +241,7 @@ export class Parser {
 
       left = {
         type: "BINARY_EXPRESSION",
+        dataType: left.dataType,
         operator,
         left,
         right,
@@ -264,6 +266,7 @@ export class Parser {
 
       left = {
         type: "BINARY_EXPRESSION",
+        dataType: left.dataType,
         operator,
         left,
         right,
@@ -281,6 +284,7 @@ export class Parser {
         return {
           type: "IDENTIFIER",
           value: this.eat()!.value,
+          dataType: token.
         } as Identifier;
 
       case "WHOLE_NUMERIC_LITERAL":
