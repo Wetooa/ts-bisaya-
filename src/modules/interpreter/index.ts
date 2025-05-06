@@ -1,27 +1,27 @@
 import * as readline from "readline-sync";
-import { InvalidDataType } from "../../exceptions/interpreter/errors";
+import { InvalidVariableTypeError } from "../../exceptions/interpreter";
 import type { AST, ASTNode } from "../../types/interpreter";
 import type {
   BinaryExpression,
   Expression,
   NumericLiteral,
+  Program,
+  VariableDeclaration,
 } from "../../types/parser";
-
+``;
 var variableDictionary = new Map();
 
-export default function interpret(lines: AST[]) {
-  lines.forEach((line) => {
+export default function interpret(lines: Program) {
+  lines.body.forEach((line) => {
     interpret_helper(line);
   });
 }
 
-function interpret_helper(Tree: AST) {
-  if (Tree.root?.value === "MUGNA") {
-    evaluate_mugna(Tree.root);
-  } else if (Tree.root?.value === "IPAKITA") {
-    evaluate_ipakita(Tree.root);
-  } else if (Tree.root?.value === "DAWAT") {
-    evaluate_dawat(Tree.root);
+function interpret_helper(expression: Expression) {
+  if (expression.type === "BINARY_EXPRESSION") {
+    evaluate_numeric_expression(expression as BinaryExpression);
+  } else if (expression.type === "VARIABLE_DECLARATION") {
+    evaluate_variable_declaration(expression as VariableDeclaration);
   }
 }
 
@@ -45,42 +45,23 @@ export function evaluate_numeric_expression(root: Expression) {
   }
 }
 
-// MUGNA Initialization
+// Variable declaration
 
-function evaluate_mugna(head: ASTNode) {
-  let data_type: string = head.left?.value as string;
-  if (["NUMERO", "LETRA", "TINUOD", "TIPIK"].includes(data_type) == false) {
-    throw new InvalidDataType(
-      `Got ${data_type} should be ${'["NUMERO", "LETRA", "TINUOD", "TIPIK"]'}`,
-    );
-  }
-  parseVariables(data_type, head.left!.left!);
+function evaluate_variable_declaration(statement: Expression) {
+  let dataType = (statement as VariableDeclaration).dataType;
+
+  (statement as VariableDeclaration).variables.forEach((variable) => {
+    if (checkVariable(variable.value, dataType)) {
+      variableDictionary.set(variable.identifier, variable.value);
+    } else {
+      throw new InvalidVariableTypeError(
+        `${variable.value} is not compatible for ${dataType}`
+      );
+    }
+  });
 }
 
 // MUGNA HELPERS
-enum parsingState {
-  VARIABLE,
-  ELEMENT,
-}
-
-function parseVariables(dataType: string, head: ASTNode) {
-  let stack = [];
-
-  while (head) {
-    if (checkVariable(head.value, dataType)) {
-      let tempElem = stack.pop();
-      variableDictionary.set(tempElem, head.value);
-    } else if (typeof head.value === "string") {
-      stack.push(head.value);
-    }
-
-    head = head.right!;
-  }
-
-  while (stack.length != 0) {
-    variableDictionary.set(stack.pop(), "ambot");
-  }
-}
 
 function checkVariable(element: any, data_type: string) {
   switch (data_type) {
