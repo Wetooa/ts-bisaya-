@@ -161,29 +161,32 @@ export class Interpreter {
 
   private executeOutputStatement(statement: OutputStatement): void {
     for (const variable of statement.variables) {
-      let value;
+      let value = this.evaluateExpression(variable);
 
-      if (variable.type === "IDENTIFIER") {
-        const identifierName = variable.value as string;
-        if (!this.variables.has(identifierName)) {
-          throw new Error(`Variable ${identifierName} is not defined`);
-        }
+      value = value === true ? "OO" : value === false ? "DILI" : value;
 
-        const identifierValue = this.variables.get(identifierName)!;
-
-        if (identifierValue.type === "BOOLEAN") {
-          value = identifierValue.value ? "OO" : "DILI";
-        } else {
-          value = this.variables.get(identifierName)!.value;
-        }
-      } else {
-        value =
-          variable.dataType === "BOOLEAN"
-            ? variable.value
-              ? "OO"
-              : "DILI"
-            : variable.value;
-      }
+      // if (value.type === "IDENTIFIER") {
+      //   const identifierName = variable.value as string;
+      //
+      //   if (!this.variables.has(identifierName)) {
+      //     throw new Error(`Variable ${identifierName} is not defined`);
+      //   }
+      //
+      //   const identifierValue = this.variables.get(identifierName)!;
+      //
+      //   if (identifierValue.type === "BOOLEAN") {
+      //     value = identifierValue.value ? "OO" : "DILI";
+      //   } else {
+      //     value = this.variables.get(identifierName)!.value;
+      //   }
+      // } else {
+      //   value =
+      //     variable.dataType === "BOOLEAN"
+      //       ? variable.value
+      //         ? "OO"
+      //         : "DILI"
+      //       : variable.value;
+      // }
 
       this.output += value;
     }
@@ -254,6 +257,7 @@ export class Interpreter {
       }
       case "BINARY_EXPRESSION":
         return this.evaluateBinaryExpression(expression as BinaryExpression);
+
       case "ASSIGNMENT_EXPRESSION":
         return this.executeAssignmentExpression(
           expression as AssignmentExpression,
