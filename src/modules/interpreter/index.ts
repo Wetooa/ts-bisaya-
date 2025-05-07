@@ -56,11 +56,11 @@ export class Interpreter {
         return this.executeStatements((statement as Program).body);
       case "VARIABLE_DECLARATION":
         return this.executeVariableDeclaration(
-          statement as VariableDeclaration
+          statement as VariableDeclaration,
         );
       case "ASSIGNMENT_EXPRESSION":
         return this.executeAssignmentExpression(
-          statement as AssignmentExpression
+          statement as AssignmentExpression,
         );
       case "INPUT_STATEMENT":
         return this.executeInputStatement(statement as InputStatement);
@@ -108,7 +108,7 @@ export class Interpreter {
 
       if (variable.type !== assignment.dataType) {
         throw new Error(
-          `Type mismatch: cannot assign ${assignment.dataType} to ${variable.type}`
+          `Type mismatch: cannot assign ${assignment.dataType} to ${variable.type}`,
         );
       }
 
@@ -256,7 +256,7 @@ export class Interpreter {
         return this.evaluateBinaryExpression(expression as BinaryExpression);
       case "ASSIGNMENT_EXPRESSION":
         return this.executeAssignmentExpression(
-          expression as AssignmentExpression
+          expression as AssignmentExpression,
         );
 
       case "NULL_LITERAL":

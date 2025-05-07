@@ -130,13 +130,16 @@ export class Parser {
   }
 
   private removeSkippableTokens() {
+    let x = false;
     while (
       !this.isEnd() &&
       (this.currentToken.type === "NEWLINE" ||
         this.currentToken.type === "NULL")
     ) {
+      x = true;
       this.eat();
     }
+    return x;
   }
 
   public parse(): Program {
@@ -164,20 +167,30 @@ export class Parser {
   }
 
   private parseStatement(): Statement {
+    let res;
+
     switch (this.currentToken.type) {
       case "VARIABLE_DECLARATION":
-        return this.parseVariableDeclaration();
+        res = this.parseVariableDeclaration();
+        break;
       case "INPUT_STATEMENTS":
-        return this.parseInputStatement();
+        res = this.parseInputStatement();
+        break;
       case "OUTPUT_STATEMENTS":
-        return this.parseOutputStatement();
+        res = this.parseOutputStatement();
+        break;
       case "CONDITIONAL_DECLARATION":
-        return this.parseConditionalStatement();
+        res = this.parseConditionalStatement();
+        break;
       case "FOR_LOOP_DECLARATION":
-        return this.parseForLoopStatement();
+        res = this.parseForLoopStatement();
+        break;
       default:
-        return this.parseExpression();
+        res = this.parseExpression();
+        break;
     }
+
+    return res;
   }
 
   private parseCondition(): Expression {
@@ -217,7 +230,6 @@ export class Parser {
     }
 
     this.expectType("CLOSE_CURLY_BRACE", "Expected closing curly brace");
-    this.removeSkippableTokens();
     return codeBlock;
   }
 
@@ -227,8 +239,11 @@ export class Parser {
       "Expected conditional declaration",
     );
 
+    let lastSpace = false;
+
     const condition = this.parseCondition();
     const body = this.parseCodeBlock();
+    lastSpace = this.removeSkippableTokens();
 
     const ifStatement: IfStatement = {
       type: "IF_STATEMENT",
@@ -253,8 +268,10 @@ export class Parser {
         this.currentToken.value === "DILI"
       ) {
         this.eat();
+        this.removeSkippableTokens();
         const condition = this.parseCondition();
         const body = this.parseCodeBlock();
+        lastSpace = this.removeSkippableTokens();
         ifStatement.elseIf.push({
           condition,
           body,
@@ -266,8 +283,16 @@ export class Parser {
         this.eat();
         this.removeSkippableTokens();
         ifStatement.else = this.parseCodeBlock();
+        lastSpace = this.removeSkippableTokens();
         break;
       }
+    }
+
+    if (!lastSpace) {
+      throw new ParserException(
+        "Expected newline after if statement",
+        this.currentLine,
+      );
     }
 
     return ifStatement;
@@ -327,11 +352,11 @@ export class Parser {
     const increment = this.parseExpression();
 
     this.expectType("CLOSE_PARENTHESIS", "Expected closing parenthesis");
-    this.removeSkippableTokens();
 
     // Body
     const body = this.parseCodeBlock();
 
+    this.expectType("NEWLINE", "Expected newline after if statement");
     return {
       type: "FOR_LOOP",
       identifier: identifier.value,
@@ -502,40 +527,38 @@ export class Parser {
     // NOTE: IF IT'S AN IDENTIFIER, CHECK IF IT'S DECLARED
     this.assertExpressionPresent(left);
 
-    // if (this.currentToken.type === "INCREMENT_OPERATOR") {
-    //   const op = this.eat();
-    //
-    //   this.assertExpressionDataTypeMatching(left, {
-    //     dataType: "INT",
-    //   } as NumericLiteral);
-    //
-    //
-    //
-    //   const right = {
-    //     type: "BINARY_EXPRESSION",
-    //     dataType: "INT",
-    //     operator: op.value[0],
-    //     left: {
-    //       type: "NUMERIC_LITERAL",
-    //       dataType: "INT",
-    //       value: left.value,
-    //     } as NumericLiteral,
-    //     right: {
-    //       type: "BINARY_EXPRESSION",
-    //       dataType: "INT",
-    //       operator: op.value[1],
-    //     }
-    //   } as BinaryExpression;
-    //
-    //   this.assertExpressionDataTypeMatching(left, right);
-    //
-    //   return {
-    //     type: "ASSIGNMENT_EXPRESSION",
-    //     dataType: left.dataType === undefined ? right.dataType : left.dataType,
-    //     assignee: left,
-    //     value: right,
-    //   } as AssignmentExpression;
-    // }
+    if (this.currentToken.type === "INCREMENT_OPERATOR") {
+      const op = this.eat();
+
+      this.assertExpressionDataTypeMatching(left, {
+        dataType: "INT",
+      } as NumericLiteral);
+
+      const right = {
+        type: "BINARY_EXPRESSION",
+        dataType: "INT",
+        operator: op.value[0],
+        left: {
+          type: "NUMERIC_LITERAL",
+          dataType: "INT",
+          value: left.value,
+        } as NumericLiteral,
+        right: {
+          type: "BINARY_EXPRESSION",
+          dataType: "INT",
+          operator: op.value[1],
+        },
+      } as BinaryExpression;
+
+      this.assertExpressionDataTypeMatching(left, right);
+
+      return {
+        type: "ASSIGNMENT_EXPRESSION",
+        dataType: left.dataType === undefined ? right.dataType : left.dataType,
+        assignee: left,
+        value: right,
+      } as AssignmentExpression;
+    }
 
     if (this.currentToken.type === "ASSIGNMENT_OPERATOR") {
       this.eat();

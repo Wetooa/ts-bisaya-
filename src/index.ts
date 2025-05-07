@@ -35,7 +35,7 @@ export function run(input: string, isRepl = false) {
     output = interpret(ast);
     console.log("Output:", output);
   } catch (error) {
-    console.error("Error:", error);
+    throw new Error(`Error: ${error}`);
   }
 
   return output;
@@ -49,4 +49,4 @@ function main() {
   run(testcases[6]!.input, false);
 }
 
-main();
+// main();
