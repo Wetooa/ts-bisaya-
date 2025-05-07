@@ -352,6 +352,7 @@ export class Parser {
     const increment = this.parseExpression();
 
     this.expectType("CLOSE_PARENTHESIS", "Expected closing parenthesis");
+    this.removeSkippableTokens();
 
     // Body
     const body = this.parseCodeBlock();
