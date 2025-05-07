@@ -1,8 +1,6 @@
 SUGOD
-	MUGNA NUMERO a
-	DAWAT: a
-	KUNG (a<10)
-	PUNDOK{
-		IPAKITA: a + 10
-	}
+	MUGNA NUMERO x = 5, b = 2, z
+	x = x + b
+	DAWAT: z
+	IPAKITA: [-] & [-] & x & [&] & b & z & [-] & [-]
 KATAPUSAN

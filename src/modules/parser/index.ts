@@ -563,7 +563,9 @@ export class Parser {
     if (this.currentToken.type === "ASSIGNMENT_OPERATOR") {
       this.eat();
       const right = this.parseAssignmentExpression();
+
       this.assertExpressionDataTypeMatching(left, right);
+
       left = {
         type: "ASSIGNMENT_EXPRESSION",
         dataType: left.dataType === undefined ? right.dataType : left.dataType,
@@ -733,6 +735,9 @@ export class Parser {
         return {
           type: "IDENTIFIER",
           value: this.eat()!.value,
+          dataType: this.isIdentifierPresent(token.value)
+            ? this.identifierDataTypes.get(token.value)!
+            : undefined,
         } as Identifier;
 
       case "WHOLE_NUMERIC_LITERAL":
