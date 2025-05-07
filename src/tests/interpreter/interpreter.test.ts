@@ -19,7 +19,7 @@ describe("Interpreter", () => {
   });
 
   test("Perfect Testcases", () => {
-    const testcases = readTestCases(6);
+    const testcases = readTestCases(1);
 
     for (const testcase of testcases) {
       const output = run(testcase.input);

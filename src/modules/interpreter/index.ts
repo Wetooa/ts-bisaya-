@@ -148,7 +148,7 @@ export class Interpreter {
           variable.value = parseFloat(input) || 0.0;
           break;
         case "CHAR":
-          variable.value = input.charAt(0) || "";
+          variable.value = input || "";
           break;
         case "BOOLEAN":
           variable.value = input === "OO";
@@ -233,6 +233,8 @@ export class Interpreter {
   }
 
   private evaluateExpression(expression: Expression): any {
+    console.log(this.variables);
+
     switch (expression.type) {
       case "NUMERIC_LITERAL":
         return (expression as NumericLiteral).value;
