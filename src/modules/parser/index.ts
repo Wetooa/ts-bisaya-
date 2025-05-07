@@ -540,15 +540,14 @@ export class Parser {
         dataType: "INT",
         operator: op.value[0],
         left: {
+          type: "IDENTIFIER",
+          value: left.value,
+        } as Identifier,
+        right: {
           type: "NUMERIC_LITERAL",
           dataType: "INT",
-          value: left.value,
+          value: 1,
         } as NumericLiteral,
-        right: {
-          type: "BINARY_EXPRESSION",
-          dataType: "INT",
-          operator: op.value[1],
-        },
       } as BinaryExpression;
 
       this.assertExpressionDataTypeMatching(left, right);

@@ -44,9 +44,9 @@ export function run(input: string, isRepl = false) {
 // repl();
 
 function main() {
-  const testcases = readTestCases(8);
+  const testcases = readTestCases();
 
-  run(testcases[6]!.input, false);
+  run(testcases[8]!.input, false);
 }
 
-// main();
+main();

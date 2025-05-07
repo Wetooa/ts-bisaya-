@@ -2,7 +2,7 @@ SUGOD
   MUGNA NUMERO a = 1, b
   ALANG SA (a = 1, a <= 5, a = a + 1) PUNDOK {
     IPAKITA: a
-    DAWAT: b
-    IPAKITA: b
+    -- DAWAT: b
+    -- IPAKITA: b
   }
 KATAPUSAN

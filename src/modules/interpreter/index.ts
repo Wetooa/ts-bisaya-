@@ -250,6 +250,10 @@ export class Interpreter {
           throw new Error(`Variable ${variableName} is not defined`);
         }
 
+        console.log(
+          `Variable ${variableName} value: ${this.variables.get(variableName)!.value}`,
+        );
+
         return this.variables.get(variableName)!.value;
       }
       case "BINARY_EXPRESSION":
