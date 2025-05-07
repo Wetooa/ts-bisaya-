@@ -30,9 +30,6 @@ export const KEYWORDS: Record<string, TokenType> = {
   O: "LOGICAL_OPERATOR", // Logical OR operator (equivalent to "or")
   DILI: "LOGICAL_OPERATOR", // Logical NOT operator (equivalent to "not")
 
-  // Boolean literal
-  OO: "BOOLEAN_LITERAL", // True/Yes value (equivalent to "true")
-
   // Data type keywords
   NUMERO: "DATATYPE", // Integer number type
   LETRA: "DATATYPE", // Character type

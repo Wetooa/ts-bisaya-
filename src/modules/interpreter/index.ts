@@ -233,8 +233,6 @@ export class Interpreter {
   }
 
   private evaluateExpression(expression: Expression): any {
-    console.log(this.variables);
-
     switch (expression.type) {
       case "NUMERIC_LITERAL":
         return (expression as NumericLiteral).value;

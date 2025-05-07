@@ -10,7 +10,7 @@ export class ParserException extends Error {
 export class DataTypeMismatchException extends ParserException {
   constructor(expectedType: string, actualType: string, line: number) {
     super(`Expected type is "${expectedType}", got "${actualType}".`, line);
-    this.name = "IdentifierMismatchException";
+    this.name = "DataTypeMismatchException";
   }
 }
 

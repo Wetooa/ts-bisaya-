@@ -1,6 +1,4 @@
 SUGOD
-	MUGNA NUMERO x = 5, b = 2, z
-	x = x + b
-	DAWAT: z
-	IPAKITA: [-] & [-] & x & [&] & b & z & [-] & [-]
+	MUGNA TINUOD a = "OO", b = "DILI", c=OO
+	DAWAT: a
 KATAPUSAN
