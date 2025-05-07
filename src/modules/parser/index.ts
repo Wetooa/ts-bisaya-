@@ -327,7 +327,7 @@ export class Parser {
     const increment = this.parseExpression();
 
     this.expectType("CLOSE_PARENTHESIS", "Expected closing parenthesis");
-    this.expectType("NEWLINE", "Expected newline after for loop declaration");
+    this.removeSkippableTokens();
 
     // Body
     const body = this.parseCodeBlock();
@@ -384,64 +384,7 @@ export class Parser {
     };
 
     while (true) {
-      switch (this.currentToken.type) {
-        case "STRING": {
-          const stringLiteral = this.expectType("STRING", "Expected string");
-          result.variables.push({
-            type: "LITERAL",
-            value: stringLiteral.value,
-          });
-          break;
-        }
-
-        case "ESCAPED_CHAR": {
-          const charLiteral = this.expectType("ESCAPED_CHAR", "Expected char");
-          result.variables.push({ type: "LITERAL", value: charLiteral.value });
-          break;
-        }
-
-        case "CHAR_LITERAL": {
-          const charLiteral = this.expectType("CHAR_LITERAL", "Expected char");
-          result.variables.push({ type: "LITERAL", value: charLiteral.value });
-          break;
-        }
-
-        case "BOOLEAN_LITERAL": {
-          const booleanLiteral = this.expectType(
-            "BOOLEAN_LITERAL",
-            "Expected boolean literal",
-          );
-          result.variables.push({
-            type: "LITERAL",
-            value: booleanLiteral.value,
-          });
-          break;
-        }
-
-        case "CARRIAGE_RETURN": {
-          const carriageReturn = this.expectType(
-            "CARRIAGE_RETURN",
-            "Expected carriage return",
-          );
-          result.variables.push({
-            type: "LITERAL",
-            value: carriageReturn.value,
-          });
-          continue;
-        }
-
-        case "IDENTIFIER": {
-          const identifier = this.expectType(
-            "IDENTIFIER",
-            "Expected identifier",
-          );
-          result.variables.push({
-            type: "IDENTIFIER",
-            identifierName: identifier.value,
-          });
-          break;
-        }
-      }
+      result.variables.push(this.parseExpression());
 
       if (this.currentToken.type === "AMPERSAND") {
         this.eat();
@@ -559,17 +502,45 @@ export class Parser {
     // NOTE: IF IT'S AN IDENTIFIER, CHECK IF IT'S DECLARED
     this.assertExpressionPresent(left);
 
-    // FIX: implement this lol
     // if (this.currentToken.type === "INCREMENT_OPERATOR") {
-    //   this.eat();
+    //   const op = this.eat();
+    //
+    //   this.assertExpressionDataTypeMatching(left, {
+    //     dataType: "INT",
+    //   } as NumericLiteral);
+    //
+    //
+    //
+    //   const right = {
+    //     type: "BINARY_EXPRESSION",
+    //     dataType: "INT",
+    //     operator: op.value[0],
+    //     left: {
+    //       type: "NUMERIC_LITERAL",
+    //       dataType: "INT",
+    //       value: left.value,
+    //     } as NumericLiteral,
+    //     right: {
+    //       type: "BINARY_EXPRESSION",
+    //       dataType: "INT",
+    //       operator: op.value[1],
+    //     }
+    //   } as BinaryExpression;
+    //
+    //   this.assertExpressionDataTypeMatching(left, right);
+    //
+    //   return {
+    //     type: "ASSIGNMENT_EXPRESSION",
+    //     dataType: left.dataType === undefined ? right.dataType : left.dataType,
+    //     assignee: left,
+    //     value: right,
+    //   } as AssignmentExpression;
     // }
 
     if (this.currentToken.type === "ASSIGNMENT_OPERATOR") {
       this.eat();
       const right = this.parseAssignmentExpression();
-
       this.assertExpressionDataTypeMatching(left, right);
-
       left = {
         type: "ASSIGNMENT_EXPRESSION",
         dataType: left.dataType === undefined ? right.dataType : left.dataType,
@@ -776,11 +747,28 @@ export class Parser {
           dataType: "STRING",
         } as StringLiteral;
 
+      case "ESCAPED_CHAR":
+        return {
+          type: "CHAR_LITERAL",
+          value: this.eat()!.value,
+          dataType: "CHAR",
+        };
+
+      case "CARRIAGE_RETURN":
+        return {
+          type: "CHAR_LITERAL",
+          value: this.eat()!.value,
+          dataType: "CHAR",
+        };
+
       case "OPEN_PARENTHESIS":
         this.eat();
         const expression = this.parseExpression();
         this.expectType("CLOSE_PARENTHESIS", "Expected closing parenthesis");
         return expression;
+
+      case "CLOSE_PARENTHESIS":
+        return {} as NullLiteral;
 
       case "NEWLINE":
         this.eat();
