@@ -1,0 +1,33 @@
+SUGOD
+  MUGNA NUMERO a = 5
+  MUGNA NUMERO b = 10
+  
+  -- Test increment operator
+  a++
+  b--
+  
+  IPAKITA: "Value of a: " & a & "\n"
+  IPAKITA: "Value of b: " & b & "\n"
+  
+  -- Test arithmetic
+  MUGNA NUMERO sum=5
+  IPAKITA: "a + b = " & sum & "\n"
+  
+  -- Test conditional
+  KUNG (a < b) PUNDOK {
+    IPAKITA: "a is less than b\n"
+  } KUNG DILI (a > b) 
+  PUNDOK {
+    IPAKITA: "a is equal to b\n"
+  } PUNDOK {
+    IPAKITA: "a is greater than b\n"
+  }
+
+  -- Test loop
+  MUGNA NUMERO i
+  IPAKITA: "Counting: "
+  ALANG SA (i=1, i<=5, i++)
+  PUNDOK {
+    IPAKITA: i & " "
+  }
+KATAPUSAN
