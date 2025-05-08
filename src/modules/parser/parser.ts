@@ -71,6 +71,13 @@ export class Parser {
     const x = this.getDataType(a);
     const y = this.getDataType(b);
 
+    if (
+      (x === "NUMERO" || x === "TIPIK") &&
+      (y === "NUMERO" || y === "TIPIK")
+    ) {
+      return;
+    }
+
     if (x !== y) {
       throw new DataTypeMismatchException(
         x,
@@ -413,14 +420,7 @@ export class Parser {
       if (this.currentToken.type === "ASSIGNMENT_OPERATOR") {
         this.reader.expectValue("=", "Expected equals assignment operator");
         value = this.parseExpression();
-
-        if (value.dataType !== declarationDataType) {
-          throw new DataTypeMismatchException(
-            declarationDataType,
-            value.dataType,
-            this.reader.getCurrentPosition(),
-          );
-        }
+        this.assertExpressionDataTypeMatching(value, result as Expression);
       }
 
       this.setIdentifierDataType(identifier.value, declarationDataType);

@@ -1077,4 +1077,269 @@ describe("Interpreter", () => {
 
     expect(result).toBe("OO"); // ((5 > 3) AND true) OR ((5 < 3) AND false) OR (5 + 3 == 8) = (true AND true) OR (false AND false) OR true = true OR false OR true = true
   });
+
+  test("Binary search algorithm", () => {
+    const source = `SUGOD
+      MUGNA NUMERO target = 42
+      MUGNA NUMERO arr1 = 10
+      MUGNA NUMERO arr2 = 20
+      MUGNA NUMERO arr3 = 30
+      MUGNA NUMERO arr4 = 40
+      MUGNA NUMERO arr5 = 42
+      MUGNA NUMERO arr6 = 50
+      MUGNA NUMERO arr7 = 60
+      MUGNA NUMERO arr8 = 70
+      MUGNA NUMERO arr9 = 80
+      
+      MUGNA NUMERO left = 1
+      MUGNA NUMERO right = 9
+      MUGNA NUMERO mid
+      MUGNA TINUOD found = "DILI"
+      MUGNA NUMERO foundIndex = -1
+      
+      ALANG SA (left <= right, left <= right, left)
+      PUNDOK {
+        mid = left + (right - left) / 2
+        
+        MUGNA NUMERO currentVal = -1
+        KUNG (mid == 1) PUNDOK { currentVal = arr1 }
+        KUNG (mid == 2) PUNDOK { currentVal = arr2 }
+        KUNG (mid == 3) PUNDOK { currentVal = arr3 }
+        KUNG (mid == 4) PUNDOK { currentVal = arr4 }
+        KUNG (mid == 5) PUNDOK { currentVal = arr5 }
+        KUNG (mid == 6) PUNDOK { currentVal = arr6 }
+        KUNG (mid == 7) PUNDOK { currentVal = arr7 }
+        KUNG (mid == 8) PUNDOK { currentVal = arr8 }
+        KUNG (mid == 9) PUNDOK { currentVal = arr9 }
+        
+        KUNG (currentVal == target) PUNDOK {
+          found = "OO"
+          foundIndex = mid
+          left = right + 1  -- break loop
+        }
+        KUNG DILI (currentVal < target) PUNDOK {
+          right = mid - 1
+        }
+        KUNG WALA PUNDOK {
+          left = mid + 1
+        }
+      }
+      
+      IPAKITA: foundIndex
+    KATAPUSAN`;
+
+    const tokens = new Tokenizer().tokenize(source);
+    const ast = new Parser().parse(tokens);
+    const result = interpreter.interpret(ast);
+
+    expect(result).toBe("5"); // Target value 42 is at index 5
+  });
+
+  test("Quadratic formula implementation", () => {
+    const source = `SUGOD
+      MUGNA TIPIK a = 1.0
+      MUGNA TIPIK b = -5.0
+      MUGNA TIPIK c = 6.0
+      MUGNA TIPIK discriminant = b * b - 4.0 * a * c
+      MUGNA TIPIK root1 = 0.0
+      MUGNA TIPIK root2 = 0.0
+      MUGNA TIPIK twoA = 2.0 * a
+      MUGNA TINUOD hasRealRoots = "DILI"
+      
+      KUNG (discriminant >= 0) PUNDOK {
+        hasRealRoots = "OO"
+        MUGNA TIPIK sqrtDiscriminant = discriminant
+        
+        -- Simplified square root approximation using Newton's method
+        MUGNA TIPIK x = discriminant / 2
+        MUGNA NUMERO i = 0
+        ALANG SA (i < 10, i < 10, i++)
+        PUNDOK {
+          x = 0.5 * (x + discriminant / x)
+        }
+        sqrtDiscriminant = x
+        
+        root1 = (-b + sqrtDiscriminant) / twoA
+        root2 = (-b - sqrtDiscriminant) / twoA
+      }
+      
+      -- Round to one decimal place (multiply by 10, truncate, divide by 10)
+      MUGNA TIPIK roundedRoot1 = (root1 * 10) / 10
+      MUGNA TIPIK roundedRoot2 = (root2 * 10) / 10
+      
+      IPAKITA: roundedRoot1 & ", " & roundedRoot2
+    KATAPUSAN`;
+
+    const tokens = new Tokenizer().tokenize(source);
+    const ast = new Parser().parse(tokens);
+    const result = interpreter.interpret(ast);
+
+    expect(result).toBe("3, 2"); // Roots of x^2 - 5x + 6 = 0 are 3 and 2
+  });
+
+  test("Matrix multiplication simulation", () => {
+    const source = `SUGOD
+      -- Matrix A: 2x2
+      MUGNA NUMERO a11 = 1
+      MUGNA NUMERO a12 = 2
+      MUGNA NUMERO a21 = 3
+      MUGNA NUMERO a22 = 4
+      
+      -- Matrix B: 2x2
+      MUGNA NUMERO b11 = 5
+      MUGNA NUMERO b12 = 6
+      MUGNA NUMERO b21 = 7
+      MUGNA NUMERO b22 = 8
+      
+      -- Matrix C = A * B
+      MUGNA NUMERO c11 = a11 * b11 + a12 * b21
+      MUGNA NUMERO c12 = a11 * b12 + a12 * b22
+      MUGNA NUMERO c21 = a21 * b11 + a22 * b21
+      MUGNA NUMERO c22 = a21 * b12 + a22 * b22
+      
+      IPAKITA: c11 & "," & c12 & ";" & c21 & "," & c22
+    KATAPUSAN`;
+
+    const tokens = new Tokenizer().tokenize(source);
+    const ast = new Parser().parse(tokens);
+    const result = interpreter.interpret(ast);
+
+    expect(result).toBe("19,22;43,50"); // Result of matrix multiplication
+  });
+
+  test("Recursive Fibonacci calculation simulation", () => {
+    const source = `SUGOD
+      MUGNA NUMERO memo1 = 1
+      MUGNA NUMERO memo2 = 1
+      MUGNA NUMERO memo3 = 2
+      MUGNA NUMERO memo4 = 3
+      MUGNA NUMERO memo5 = 5
+      MUGNA NUMERO memo6 = 8
+      MUGNA NUMERO memo7 = 13
+      MUGNA NUMERO memo8 = 21
+      
+      MUGNA NUMERO n = 8
+      MUGNA NUMERO result = 0
+      
+      -- Simulate recursion using lookup table
+      KUNG (n == 0) PUNDOK {
+        result = 0
+      }
+      KUNG DILI (n == 1 O n == 2) PUNDOK {
+        result = 1
+      }
+      KUNG DILI (n == 3) PUNDOK {
+        result = memo3
+      }
+      KUNG DILI (n == 4) PUNDOK {
+        result = memo4
+      }
+      KUNG DILI (n == 5) PUNDOK {
+        result = memo5
+      }
+      KUNG DILI (n == 6) PUNDOK {
+        result = memo6
+      }
+      KUNG DILI (n == 7) PUNDOK {
+        result = memo7
+      }
+      KUNG DILI (n == 8) PUNDOK {
+        result = memo8
+      }
+      
+      IPAKITA: result
+    KATAPUSAN`;
+
+    const tokens = new Tokenizer().tokenize(source);
+    const ast = new Parser().parse(tokens);
+    const result = interpreter.interpret(ast);
+
+    expect(result).toBe("21"); // 8th Fibonacci number is 21
+  });
+
+  test("Neural network forward pass simulation", () => {
+    const source = `SUGOD
+      -- Input values
+      MUGNA TIPIK x1 = 0.5
+      MUGNA TIPIK x2 = 0.3
+      
+      -- Hidden layer weights
+      MUGNA TIPIK w1_11 = 0.2
+      MUGNA TIPIK w1_12 = 0.4
+      MUGNA TIPIK w1_21 = 0.3
+      MUGNA TIPIK w1_22 = 0.1
+      
+      -- Hidden layer bias
+      MUGNA TIPIK b1_1 = 0.1
+      MUGNA TIPIK b1_2 = 0.2
+      
+      -- Output layer weights
+      MUGNA TIPIK w2_11 = 0.3
+      MUGNA TIPIK w2_12 = 0.5
+      
+      -- Output layer bias
+      MUGNA TIPIK b2 = 0.1
+      
+      -- Forward pass calculation
+      -- Hidden layer nodes
+      MUGNA TIPIK h1 = x1 * w1_11 + x2 * w1_21 + b1_1
+      MUGNA TIPIK h2 = x1 * w1_12 + x2 * w1_22 + b1_2
+      
+      -- ReLU activation function for hidden layer
+      KUNG (h1 < 0) PUNDOK { h1 = 0 }
+      KUNG (h2 < 0) PUNDOK { h2 = 0 }
+      
+      -- Output layer calculation
+      MUGNA TIPIK output = h1 * w2_11 + h2 * w2_12 + b2
+      
+      -- Sigmoid activation approximation for output layer
+      MUGNA TIPIK sigmoid = 0
+      KUNG (output < -5) PUNDOK {
+        sigmoid = 0
+      }
+      KUNG DILI (output > 5) PUNDOK {
+        sigmoid = 1
+      }
+      KUNG WALA PUNDOK {
+        -- Simple approximation of sigmoid using polynomial
+        sigmoid = 0.5 + output * 0.25 - output * output * 0.01
+      }
+      
+      IPAKITA: sigmoid
+    KATAPUSAN`;
+
+    const tokens = new Tokenizer().tokenize(source);
+    const ast = new Parser().parse(tokens);
+    const result = interpreter.interpret(ast);
+
+    // Approximate result based on the neural network calculation with our simplified sigmoid
+    expect(result).toBe("0.59888396");
+  });
+
+  test("Extended nested expressions with complex operator precedence", () => {
+    const source = `SUGOD
+      MUGNA NUMERO a = 5
+      MUGNA NUMERO b = 3
+      MUGNA NUMERO c = 7
+      MUGNA NUMERO d = 2
+      
+      MUGNA TINUOD p = "OO"
+      MUGNA TINUOD q = "DILI"
+      MUGNA TINUOD r = "OO"
+      
+      MUGNA NUMERO result = ((a + b) * (c - d) % 5) * (a / b) + (c % d)
+      MUGNA TINUOD logicResult = (p UG DILI q) O (DILI(p) UG r) O (DILI(p O q) UG DILI r)
+      
+      IPAKITA: result & " " & logicResult
+    KATAPUSAN`;
+
+    const tokens = new Tokenizer().tokenize(source);
+    const ast = new Parser().parse(tokens);
+    const result = interpreter.interpret(ast);
+
+    // ((5+3)*(7-2)%5)*(5/3)+7%2 = (8*5%5)*(1)+1 = 0*1+1 = 1
+    // (true AND NOT false) OR (NOT(true) AND true) OR (NOT(true OR false) AND NOT true)
+    // = true OR false OR (NOT true AND false) = true OR false OR false = true
+    expect(result).toBe("1 OO");
+  });
 });
