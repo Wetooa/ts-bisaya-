@@ -786,4 +786,101 @@ describe("Interpreter", () => {
 
     expect(result).toBe("3"); // Integer division of 17/5 = 3
   });
+
+  test("Floating point arithmetic with precedence", () => {
+    const source = `SUGOD
+      MUGNA TIPIK a = 5.5
+      MUGNA TIPIK b = 2.5
+      MUGNA TIPIK c = 1.5
+      IPAKITA: a + b * c - a / b
+    KATAPUSAN`;
+
+    const tokens = new Tokenizer().tokenize(source);
+    const ast = new Parser().parse(tokens);
+    const result = interpreter.interpret(ast);
+
+    expect(result).toBe("7.05"); // 5.5 + (2.5 * 1.5) - (5.5 / 2.5) = 5.5 + 3.75 - 2.2 = 7.05
+  });
+
+  test("Complex nested parentheses", () => {
+    const source = `SUGOD
+      IPAKITA: (2 + 3) * (4 - (1 + 1)) + 7
+    KATAPUSAN`;
+
+    const tokens = new Tokenizer().tokenize(source);
+    const ast = new Parser().parse(tokens);
+    const result = interpreter.interpret(ast);
+
+    expect(result).toBe("17"); // (2 + 3) * (4 - (1 + 1)) + 7 = 5 * 2 + 7 = 10 + 7 = 17
+  });
+
+  test("Mixed operators with boolean result", () => {
+    const source = `SUGOD
+      MUGNA NUMERO a = 10
+      MUGNA NUMERO b = 5
+      MUGNA NUMERO c = 20
+      IPAKITA: a > b UG b * 4 == c
+    KATAPUSAN`;
+
+    const tokens = new Tokenizer().tokenize(source);
+    const ast = new Parser().parse(tokens);
+    const result = interpreter.interpret(ast);
+
+    expect(result).toBe("OO"); // (10 > 5) AND (5 * 4 == 20) = true AND true = true
+  });
+
+  test("Complex boolean logic with parentheses", () => {
+    const source = `SUGOD
+      MUGNA TINUOD a = "OO"
+      MUGNA TINUOD b = "DILI"
+      MUGNA TINUOD c = "OO"
+      IPAKITA: (a O b) UG (b O c)
+    KATAPUSAN`;
+
+    const tokens = new Tokenizer().tokenize(source);
+    const ast = new Parser().parse(tokens);
+    const result = interpreter.interpret(ast);
+
+    expect(result).toBe("OO"); // (true OR false) AND (false OR true) = true AND true = true
+  });
+
+  test("Comparison chain with mixed arithmetic", () => {
+    const source = `SUGOD
+      MUGNA NUMERO x = 10
+      MUGNA NUMERO y = 5
+      IPAKITA: x - y > y * 0 UG x / y == 2
+    KATAPUSAN`;
+
+    const tokens = new Tokenizer().tokenize(source);
+    const ast = new Parser().parse(tokens);
+    const result = interpreter.interpret(ast);
+
+    expect(result).toBe("OO"); // (10-5 > 5*0) AND (10/5 == 2) = (5 > 0) AND (2 == 2) = true AND true = true
+  });
+
+  test("Multiple negations in boolean expressions", () => {
+    const source = `SUGOD
+      MUGNA TINUOD a = "OO" 
+      MUGNA TINUOD b = "DILI"
+      IPAKITA: DILI(DILI(a) UG DILI(b))
+    KATAPUSAN`;
+
+    const tokens = new Tokenizer().tokenize(source);
+    const ast = new Parser().parse(tokens);
+    const result = interpreter.interpret(ast);
+
+    expect(result).toBe("OO"); // NOT(NOT(true) AND NOT(false)) = NOT(false AND true) = NOT(false) = true
+  });
+
+  test("Mixed arithmetic operators with different precedence", () => {
+    const source = `SUGOD
+      IPAKITA: 2 + 3 * 4 % 5 - 6 / 3
+    KATAPUSAN`;
+
+    const tokens = new Tokenizer().tokenize(source);
+    const ast = new Parser().parse(tokens);
+    const result = interpreter.interpret(ast);
+
+    expect(result).toBe("2"); // 2 + ((3 * 4) % 5) - (6 / 3) = 2 + (12 % 5) - 2 = 2 + 2 - 2 = 2
+  });
 });
