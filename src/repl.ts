@@ -7,7 +7,7 @@ async function repl() {
   console.log('Welcome to the REPL! Type "exit" to quit.');
   const lexer = new Tokenizer(true);
   const parser = new Parser(true);
-  const interpreter = new Interpreter(true);
+  const interpreter = new Interpreter();
 
   while (true) {
     const input = readlineSync.question("> ") + "\n";

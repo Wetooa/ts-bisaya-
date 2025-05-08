@@ -33,13 +33,11 @@ export class Interpreter {
   private output: string;
   private line: number;
   private program?: Program;
-  private isRepl: boolean;
 
-  constructor(isRepl: boolean) {
+  constructor() {
     this.variables = new Map();
     this.output = "";
     this.line = 0;
-    this.isRepl = isRepl;
   }
 
   public interpret(program: Program): string {

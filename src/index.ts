@@ -10,7 +10,7 @@ export function run(input: string, isRepl = false, isDebug = false) {
 
   const lexer = new Tokenizer(isRepl);
   const parser = new Parser(isRepl);
-  const interpreter = new Interpreter(isRepl);
+  const interpreter = new Interpreter();
   let output = "";
 
   if (isDebug) {

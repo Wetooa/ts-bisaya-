@@ -1,6 +1,5 @@
 import {
   DataTypeMismatchException,
-  DatatypeNotFoundException,
   IdentifierNotFoundException,
   IdentifierRedeclarationException,
   ParserException,
