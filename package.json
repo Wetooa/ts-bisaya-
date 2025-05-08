@@ -12,6 +12,7 @@
   "scripts": {
     "start": "bun run src/index.ts",
     "repl": "bun run src/repl.ts",
+    "gui": "bun run src/gui.ts",
     "test": "bun test",
     "dev": "bun --watch src/index.ts"
   },

@@ -290,4 +290,124 @@ describe("Lexer", () => {
       expect(tokens[tokens.length - 1]?.type).toBe("EOF");
     }
   });
+  test("tokenizes multi-character tokens correctly", () => {
+    const input = "++ == >= <= <>";
+    const tokens = tokenize(input);
+
+    expect(tokens[0]?.type).toBe("INCREMENT_OPERATOR");
+    expect(tokens[0]?.value).toBe("++");
+
+    expect(tokens[1]?.type).toBe("RELATIONAL_OPERATOR");
+    expect(tokens[1]?.value).toBe("==");
+
+    expect(tokens[2]?.type).toBe("RELATIONAL_OPERATOR");
+    expect(tokens[2]?.value).toBe(">=");
+
+    expect(tokens[3]?.type).toBe("RELATIONAL_OPERATOR");
+    expect(tokens[3]?.value).toBe("<=");
+
+    expect(tokens[4]?.type).toBe("RELATIONAL_OPERATOR");
+    expect(tokens[4]?.value).toBe("<>");
+  });
+
+  test("handles multiple consecutive tokens without spaces", () => {
+    const input = "NUMERO++5";
+    const tokens = tokenize(input);
+
+    expect(tokens[0]?.type).toBe("DATATYPE");
+    expect(tokens[0]?.value).toBe("NUMERO");
+
+    expect(tokens[1]?.type).toBe("INCREMENT_OPERATOR");
+    expect(tokens[1]?.value).toBe("++");
+
+    expect(tokens[2]?.type).toBe("WHOLE_NUMERIC_LITERAL");
+    expect(tokens[2]?.value).toBe("5");
+  });
+
+  test("handles unterminated character literals", () => {
+    const input = "'a";
+
+    expect(() => {
+      tokenize(input);
+    }).toThrow(/Unterminated character literal/);
+  });
+
+  test("handles multi-character character literals", () => {
+    const input = "'ab'";
+
+    expect(() => {
+      tokenize(input);
+    }).toThrow();
+  });
+
+  test("tokenizes more complex expressions", () => {
+    const input = "KUNG (x > 5 UG y <= 10) PUNDOK SUGOD";
+    const tokens = tokenize(input);
+
+    expect(tokens[0]?.type).toBe("CONDITIONAL_DECLARATION");
+    expect(tokens[0]?.value).toBe("KUNG");
+
+    expect(tokens[1]?.type).toBe("OPEN_PARENTHESIS");
+    expect(tokens[1]?.value).toBe("(");
+
+    expect(tokens[2]?.type).toBe("IDENTIFIER");
+    expect(tokens[2]?.value).toBe("x");
+
+    expect(tokens[3]?.type).toBe("RELATIONAL_OPERATOR");
+    expect(tokens[3]?.value).toBe(">");
+
+    expect(tokens[4]?.type).toBe("WHOLE_NUMERIC_LITERAL");
+    expect(tokens[4]?.value).toBe("5");
+
+    expect(tokens[5]?.type).toBe("LOGICAL_OPERATOR");
+    expect(tokens[5]?.value).toBe("UG");
+
+    expect(tokens[6]?.type).toBe("IDENTIFIER");
+    expect(tokens[6]?.value).toBe("y");
+
+    expect(tokens[7]?.type).toBe("RELATIONAL_OPERATOR");
+    expect(tokens[7]?.value).toBe("<=");
+
+    expect(tokens[8]?.type).toBe("WHOLE_NUMERIC_LITERAL");
+    expect(tokens[8]?.value).toBe("10");
+
+    expect(tokens[9]?.type).toBe("CLOSE_PARENTHESIS");
+    expect(tokens[9]?.value).toBe(")");
+
+    expect(tokens[10]?.type).toBe("CODE_BLOCK_DECLARATION");
+    expect(tokens[10]?.value).toBe("PUNDOK");
+
+    expect(tokens[11]?.type).toBe("START_BLOCK");
+    expect(tokens[11]?.value).toBe("SUGOD");
+  });
+
+  test("tokenizes mixed declarations and expressions", () => {
+    const input = "NUMERO x = 5 + 10\nTIPIK y = 3.14 * 2";
+    const tokens = tokenize(input);
+
+    // First line tokens
+    expect(tokens[0]?.type).toBe("DATATYPE");
+    expect(tokens[0]?.value).toBe("NUMERO");
+
+    expect(tokens[1]?.type).toBe("IDENTIFIER");
+    expect(tokens[1]?.value).toBe("x");
+
+    expect(tokens[2]?.type).toBe("ASSIGNMENT_OPERATOR");
+    expect(tokens[2]?.value).toBe("=");
+
+    expect(tokens[3]?.type).toBe("WHOLE_NUMERIC_LITERAL");
+    expect(tokens[3]?.value).toBe("5");
+
+    expect(tokens[4]?.type).toBe("ARITHMETIC_OPERATOR");
+    expect(tokens[4]?.value).toBe("+");
+
+    expect(tokens[5]?.type).toBe("WHOLE_NUMERIC_LITERAL");
+    expect(tokens[5]?.value).toBe("10");
+
+    expect(tokens[6]?.type).toBe("NEWLINE");
+
+    // Second line tokens
+    expect(tokens[7]?.type).toBe("DATATYPE");
+    expect(tokens[7]?.value).toBe("TIPIK");
+  });
 });
