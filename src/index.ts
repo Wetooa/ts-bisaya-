@@ -91,6 +91,15 @@ SUGOD
 
       IPAKITA: result1 & " " & result2
 KATAPUSAN
+
+`;
+
+input = `
+SUGOD
+      MUGNA NUMERO a = -5
+      MUGNA NUMERO b = +3
+      IPAKITA: -a + b
+KATAPUSAN
 `;
 
 run(input, false, true);

@@ -664,4 +664,126 @@ describe("Interpreter", () => {
 
     expect(result).toBe("OO"); // Verifies De Morgan's law
   });
+
+  test("Expression with complex precedence", () => {
+    const source = `SUGOD
+      IPAKITA: 2 + 3 * 4 - 8 / 2
+    KATAPUSAN`;
+
+    const tokens = new Tokenizer().tokenize(source);
+    const ast = new Parser().parse(tokens);
+    const result = interpreter.interpret(ast);
+
+    expect(result).toBe("10"); // 2 + (3 * 4) - (8 / 2) = 2 + 12 - 4 = 10
+  });
+
+  test("Parenthesized expressions", () => {
+    const source = `SUGOD
+      IPAKITA: (2 + 3) * (4 - 1)
+    KATAPUSAN`;
+
+    const tokens = new Tokenizer().tokenize(source);
+    const ast = new Parser().parse(tokens);
+    const result = interpreter.interpret(ast);
+
+    expect(result).toBe("15"); // (2 + 3) * (4 - 1) = 5 * 3 = 15
+  });
+
+  test("Multiple binary operations in a row", () => {
+    const source = `SUGOD
+      IPAKITA: 10 - 5 - 3
+    KATAPUSAN`;
+
+    const tokens = new Tokenizer().tokenize(source);
+    const ast = new Parser().parse(tokens);
+    const result = interpreter.interpret(ast);
+
+    expect(result).toBe("2"); // (10 - 5) - 3 = 5 - 3 = 2
+  });
+
+  test("Complex mixed operations with variables", () => {
+    const source = `SUGOD
+      MUGNA NUMERO a = 5
+      MUGNA NUMERO b = 3
+      MUGNA NUMERO c = 2
+      IPAKITA: a * b + c * (a - b)
+    KATAPUSAN`;
+
+    const tokens = new Tokenizer().tokenize(source);
+    const ast = new Parser().parse(tokens);
+    const result = interpreter.interpret(ast);
+
+    expect(result).toBe("19"); // 5*3 + 2*(5-3) = 15 + 2*2 = 15 + 4 = 19
+  });
+
+  test("Chain of relational operators", () => {
+    const source = `SUGOD
+      MUGNA NUMERO a = 5
+      MUGNA NUMERO b = 3
+      MUGNA TINUOD result = a > b UG a == 5 O b == 2
+      IPAKITA: result
+    KATAPUSAN`;
+
+    const tokens = new Tokenizer().tokenize(source);
+    const ast = new Parser().parse(tokens);
+    const result = interpreter.interpret(ast);
+
+    expect(result).toBe("OO"); // (5 > 3) AND (5 == 5) OR (3 == 2) = true AND true OR false = true
+  });
+
+  test("Unary operators in expressions", () => {
+    const source = `SUGOD
+      MUGNA NUMERO a = -5
+      MUGNA NUMERO b = +3
+      IPAKITA: -a + b
+    KATAPUSAN`;
+
+    const tokens = new Tokenizer().tokenize(source);
+    const ast = new Parser().parse(tokens);
+    const result = interpreter.interpret(ast);
+
+    expect(result).toBe("8"); // -(-5) + 3 = 5 + 3 = 8
+  });
+
+  test("Boolean logic with negation", () => {
+    const source = `SUGOD
+      MUGNA TINUOD a = "OO"
+      MUGNA TINUOD b = "DILI"
+      IPAKITA: DILI(a UG b) == ((DILI a) O (DILI b))
+    KATAPUSAN`;
+
+    const tokens = new Tokenizer().tokenize(source);
+    const ast = new Parser().parse(tokens);
+    const result = interpreter.interpret(ast);
+
+    expect(result).toBe("OO"); // Testing De Morgan's laws: NOT(A AND B) = (NOT A) OR (NOT B)
+  });
+
+  test("Modulo operations", () => {
+    const source = `SUGOD
+      MUGNA NUMERO a = 17
+      MUGNA NUMERO b = 5
+      IPAKITA: a % b
+    KATAPUSAN`;
+
+    const tokens = new Tokenizer().tokenize(source);
+    const ast = new Parser().parse(tokens);
+    const result = interpreter.interpret(ast);
+
+    expect(result).toBe("2"); // 17 % 5 = 2
+  });
+
+  test("Integer division", () => {
+    const source = `SUGOD
+      MUGNA NUMERO a = 17
+      MUGNA NUMERO b = 5
+      IPAKITA: a / b
+    KATAPUSAN`;
+
+    const tokens = new Tokenizer().tokenize(source);
+    const ast = new Parser().parse(tokens);
+    const result = interpreter.interpret(ast);
+
+    expect(result).toBe("3"); // Integer division of 17/5 = 3
+  });
 });
