@@ -120,4 +120,20 @@ SUGOD
     KATAPUSAN
 `;
 
+input = `
+SUGOD
+      MUGNA TINUOD a = "OO" 
+      MUGNA TINUOD b = "DILI"
+      IPAKITA: DILI(DILI(a) UG DILI(b))
+    KATAPUSAN
+`;
+
+input = `
+SUGOD
+      MUGNA NUMERO x = 5
+      MUGNA NUMERO y = 3
+      IPAKITA: x + y * 2 > x * 2 UG y < x
+    KATAPUSAN
+`;
+
 run(input, false, true);

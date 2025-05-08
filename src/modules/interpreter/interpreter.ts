@@ -63,11 +63,11 @@ export class Interpreter {
         return this.executeStatements((statement as Program).body);
       case "VARIABLE_DECLARATION":
         return this.executeVariableDeclaration(
-          statement as VariableDeclaration
+          statement as VariableDeclaration,
         );
       case "ASSIGNMENT_EXPRESSION":
         return this.executeAssignmentExpression(
-          statement as AssignmentExpression
+          statement as AssignmentExpression,
         );
       case "INPUT_STATEMENT":
         return this.executeInputStatement(statement as InputStatement);
@@ -115,7 +115,7 @@ export class Interpreter {
 
       if (variable.type !== assignment.dataType) {
         throw new Error(
-          `Type mismatch: cannot assign ${assignment.dataType} to ${variable.type}`
+          `Type mismatch: cannot assign ${assignment.dataType} to ${variable.type}`,
         );
       }
 
@@ -132,7 +132,7 @@ export class Interpreter {
 
     if (inputValue.length < statement.variables.length) {
       throw new Error(
-        `Not enough input values provided. Expected ${statement.variables.length}, got ${inputValue.length}`
+        `Not enough input values provided. Expected ${statement.variables.length}, got ${inputValue.length}`,
       );
     }
 
@@ -152,7 +152,7 @@ export class Interpreter {
           if (isNaN(parseFloat(input))) {
             throw new InvalidVariableTypeError(
               "Invalid input type for datatype NUMERO",
-              { line: this.line, column: 0 }
+              { line: this.line, column: 0 },
             );
           }
 
@@ -162,7 +162,7 @@ export class Interpreter {
           if (isNaN(parseFloat(input))) {
             throw new InvalidVariableTypeError(
               "Invalid input type for datatype TIPIK",
-              { line: this.line, column: 0 }
+              { line: this.line, column: 0 },
             );
           }
 
@@ -172,7 +172,7 @@ export class Interpreter {
           if (input.length !== 1) {
             throw new InvalidInputLengthException(
               "Invalid input length for datatype LETRA",
-              { line: this.line, column: 0 }
+              { line: this.line, column: 0 },
             );
           }
 
@@ -182,7 +182,7 @@ export class Interpreter {
           if (input != "OO" && input != "DILI") {
             throw new InvalidVariableTypeError(
               "Invalid input length for datatype TINUOD",
-              { line: this.line, column: 0 }
+              { line: this.line, column: 0 },
             );
           }
 
@@ -260,11 +260,13 @@ export class Interpreter {
         return this.variables.get(variableName)!.value;
       }
       case "BINARY_EXPRESSION":
-        return this.evaluateBinaryExpression(expression as BinaryExpression);
+        let exp = expression as BinaryExpression;
+        const result = this.evaluateBinaryExpression(exp);
+        return exp.isNegative ? !result : result;
 
       case "ASSIGNMENT_EXPRESSION":
         return this.executeAssignmentExpression(
-          expression as AssignmentExpression
+          expression as AssignmentExpression,
         );
 
       case "NULL_LITERAL":
@@ -274,7 +276,7 @@ export class Interpreter {
         throw new Error(
           `Exception line ${
             this.program!.body[this.line]
-          } >>> Unknown expression type: ${expression.type}`
+          } >>> Unknown expression type: ${expression.type}`,
         );
     }
   }

@@ -933,7 +933,7 @@ describe("Interpreter", () => {
     const ast = new Parser().parse(tokens);
     const result = interpreter.interpret(ast);
 
-    expect(result).toBe("DILI"); // (5 + (3 * 2) > (5 * 2)) AND (3 < 5) = (5 + 6 > 10) AND true = false AND true = false
+    expect(result).toBe("OO");
   });
 
   test("Deeply nested arithmetic with mixed operators", () => {

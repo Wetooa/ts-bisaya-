@@ -59,7 +59,7 @@ export interface ForLoop extends Statement {
 
 export interface Expression extends Statement {
   dataType: DataType;
-  value?: unknown;
+  value?: any;
 }
 
 export interface AssignmentExpression extends Expression {
@@ -74,6 +74,7 @@ export interface BinaryExpression extends Expression {
   left: Expression;
   right: Expression;
   operator: string;
+  isNegative?: boolean;
 }
 
 export interface Identifier extends Expression {

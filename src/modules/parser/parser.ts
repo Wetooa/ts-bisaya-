@@ -1,5 +1,6 @@
 import {
   DataTypeMismatchException,
+  DatatypeNotFoundException,
   IdentifierNotFoundException,
   IdentifierRedeclarationException,
   ParserException,
@@ -473,11 +474,7 @@ export class Parser {
           type: "IDENTIFIER",
           value: left.value,
         } as Identifier,
-        right: {
-          type: "NUMERIC_LITERAL",
-          dataType: "NUMERO",
-          value: 1,
-        } as NumericLiteral,
+        right: this.createLiteral("NUMERO", 1),
       } as BinaryExpression;
 
       this.assertExpressionDataTypeMatching(left, right);
@@ -518,10 +515,7 @@ export class Parser {
       const right = this.parseRelationalExpression();
 
       this.assertExpressionDataTypeMatching(
-        {
-          type: "BOOLEAN_LITERAL",
-          dataType: "TINUOD",
-        },
+        this.createLiteral("TINUOD", true),
         left,
       );
       this.assertExpressionDataTypeMatching(left, right);
@@ -619,21 +613,17 @@ export class Parser {
 
     if (token.type === "LOGICAL_OPERATOR" && token.value === "DILI") {
       this.reader.eat();
+      const left = this.createLiteral("TINUOD", true);
       const right = this.parseArithmeticUnaryExpression();
-      const left = {
-        type: "BOOLEAN_LITERAL",
-        dataType: "TINUOD",
-        value: true,
-      };
-
       this.assertExpressionDataTypeMatching(left as Expression, right);
 
       return {
         type: "BINARY_EXPRESSION",
         dataType: right.dataType,
-        operator: "O",
-        left,
-        right,
+        operator: "UG",
+        isNegative: true,
+        left: this.createLiteral("TINUOD", true),
+        right: right,
       } as BinaryExpression;
     }
 
@@ -649,12 +639,7 @@ export class Parser {
     ) {
       this.reader.eat();
       const right = this.parsePrimaryExpression();
-      const left = {
-        type: "NUMERIC_LITERAL",
-        value: 0,
-        dataType: right.dataType,
-      };
-
+      const left = this.createLiteral("NUMERO", 0);
       this.assertExpressionDataTypeMatching(left as Expression, right);
 
       return {
@@ -667,6 +652,66 @@ export class Parser {
     }
 
     return this.parsePrimaryExpression();
+  }
+
+  private getDefaultValueOfType(type: DataType): any {
+    switch (type) {
+      case "NUMERO":
+        return 0;
+      case "TIPIK":
+        return 0.0;
+      case "TINUOD":
+        return false;
+      case "LETRA":
+        return "";
+      case "STRING":
+        return "";
+      default:
+        return null;
+    }
+  }
+
+  private createLiteral(
+    type: DataType,
+    value: any = this.getDefaultValueOfType(type),
+  ): Expression {
+    switch (type) {
+      case "NUMERO":
+        return {
+          type: "NUMERIC_LITERAL",
+          value,
+          dataType: type,
+        } as NumericLiteral;
+      case "TIPIK":
+        return {
+          type: "NUMERIC_LITERAL",
+          value,
+          dataType: type,
+        } as NumericLiteral;
+      case "TINUOD":
+        return {
+          type: "BOOLEAN_LITERAL",
+          value,
+          dataType: type,
+        } as BooleanLiteral;
+      case "LETRA":
+        return {
+          type: "CHAR_LITERAL",
+          value,
+          dataType: type,
+        } as CharLiteral;
+      case "STRING":
+        return {
+          type: "STRING_LITERAL",
+          value,
+          dataType: type,
+        } as StringLiteral;
+      default:
+        throw new DatatypeNotFoundException(
+          "" + type,
+          this.reader.getCurrentPosition(),
+        );
+    }
   }
 
   private parsePrimaryExpression(): Expression {
@@ -690,53 +735,28 @@ export class Parser {
         } as Identifier;
 
       case "WHOLE_NUMERIC_LITERAL":
-        return {
-          type: "NUMERIC_LITERAL",
-          value: parseInt(this.reader.eat()!.value),
-          dataType: "NUMERO",
-        } as NumericLiteral;
+        return this.createLiteral("NUMERO", parseInt(this.reader.eat()!.value));
 
       case "DECIMAL_NUMERIC_LITERAL":
-        return {
-          type: "NUMERIC_LITERAL",
-          value: parseFloat(this.reader.eat()!.value),
-          dataType: "TIPIK",
-        } as NumericLiteral;
+        return this.createLiteral(
+          "TIPIK",
+          parseFloat(this.reader.eat()!.value),
+        );
 
       case "BOOLEAN_LITERAL":
-        return {
-          type: "BOOLEAN_LITERAL",
-          value: this.reader.eat()!.value === "OO" ? true : false,
-          dataType: "TINUOD",
-        } as BooleanLiteral;
+        return this.createLiteral("TINUOD", this.reader.eat()!.value === "OO");
 
       case "CHAR_LITERAL":
-        return {
-          type: "CHAR_LITERAL",
-          value: this.reader.eat()!.value,
-          dataType: "LETRA",
-        } as CharLiteral;
+        return this.createLiteral("LETRA", this.reader.eat()!.value);
 
       case "STRING":
-        return {
-          type: "STRING_LITERAL",
-          value: this.reader.eat()!.value,
-          dataType: "STRING",
-        } as StringLiteral;
+        return this.createLiteral("STRING", this.reader.eat()!.value);
 
       case "ESCAPED_CHAR":
-        return {
-          type: "CHAR_LITERAL",
-          value: this.reader.eat()!.value,
-          dataType: "LETRA",
-        };
+        return this.createLiteral("LETRA", this.reader.eat()!.value);
 
       case "CARRIAGE_RETURN":
-        return {
-          type: "CHAR_LITERAL",
-          value: this.reader.eat()!.value,
-          dataType: "LETRA",
-        };
+        return this.createLiteral("LETRA", this.reader.eat()!.value);
 
       case "OPEN_PARENTHESIS":
         this.reader.eat();
