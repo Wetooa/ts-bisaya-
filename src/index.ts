@@ -78,4 +78,19 @@ SUGOD
 KATAPUSAN
 `;
 
+input = `
+SUGOD
+      MUGNA TINUOD p = "OO"
+      MUGNA TINUOD q = "DILI"
+      MUGNA TINUOD result1
+      MUGNA TINUOD result2
+      
+      -- ¬(p ∧ q) ≡ ¬p ∨ ¬q
+      result1 = DILI(p UG q)
+      result2 = (DILI p) O (DILI q)
+
+      IPAKITA: result1 & " " & result2
+KATAPUSAN
+`;
+
 run(input, false, true);

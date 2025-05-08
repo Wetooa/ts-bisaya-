@@ -453,7 +453,7 @@ export class Parser {
   }
 
   private parseAssignmentExpression(): Expression {
-    let left = this.parseLogicalExpression();
+    let left = this.parseLogicalUnaryExpression();
 
     // NOTE: IF IT'S AN IDENTIFIER, CHECK IF IT'S DECLARED
     this.assertExpressionPresent(left);
@@ -505,6 +505,61 @@ export class Parser {
     }
 
     return left;
+  }
+
+  private parseLogicalUnaryExpression(): Expression {
+    const token = this.currentToken;
+
+    if (token.type === "LOGICAL_OPERATOR" && token.value === "DILI") {
+      this.reader.eat();
+      const right = this.parseExpression();
+      const left = {
+        type: "BOOLEAN_LITERAL",
+        dataType: "TINUOD",
+        value: true,
+      };
+
+      this.assertExpressionDataTypeMatching(left as Expression, right);
+
+      return {
+        type: "BINARY_EXPRESSION",
+        dataType: right.dataType,
+        operator: "O",
+        left,
+        right,
+      } as BinaryExpression;
+    }
+
+    return this.parseArithmeticUnaryExpression();
+  }
+
+  private parseArithmeticUnaryExpression(): Expression {
+    const token = this.currentToken;
+
+    if (
+      token.type === "ARITHMETIC_OPERATOR" &&
+      (token.value === "-" || token.value === "+")
+    ) {
+      this.reader.eat();
+      const right = this.parseExpression();
+      const left = {
+        type: "NUMERIC_LITERAL",
+        value: 0,
+        dataType: right.dataType,
+      };
+
+      this.assertExpressionDataTypeMatching(left as Expression, right);
+
+      return {
+        type: "BINARY_EXPRESSION",
+        dataType: right.dataType,
+        operator: token.value[0],
+        left,
+        right,
+      } as BinaryExpression;
+    }
+
+    return this.parseLogicalExpression();
   }
 
   private parseLogicalExpression(): Expression {
@@ -617,51 +672,6 @@ export class Parser {
   private parsePrimaryExpression(): Expression {
     const token = this.currentToken;
 
-    // NOTE: FOR UNARY
-    if (
-      token.type === "ARITHMETIC_OPERATOR" &&
-      (token.value === "-" || token.value === "+")
-    ) {
-      this.reader.eat();
-      const right = this.parsePrimaryExpression();
-      const left = {
-        type: "NUMERIC_LITERAL",
-        value: 0,
-        dataType: right.dataType,
-      };
-
-      this.assertExpressionDataTypeMatching(left as Expression, right);
-
-      return {
-        type: "BINARY_EXPRESSION",
-        dataType: right.dataType,
-        operator: token.value[0],
-        left,
-        right,
-      } as BinaryExpression;
-    }
-
-    if (token.type === "LOGICAL_OPERATOR" && token.value === "DILI") {
-      this.reader.eat();
-      const right = this.parsePrimaryExpression();
-
-      if (right.dataType !== "TINUOD") {
-        throw new DataTypeMismatchException(
-          right.dataType,
-          "BOOLEAN",
-          this.reader.getCurrentPosition(),
-        );
-      }
-
-      const value = right.value as BooleanLiteral;
-
-      return {
-        type: "BOOLEAN_LITERAL",
-        dataType: "TINUOD",
-        value: !value,
-      } as BooleanLiteral;
-    }
-
     switch (token.type) {
       case "IDENTIFIER":
         if (!this.isIdentifierPresent(token.value)) {
@@ -746,7 +756,7 @@ export class Parser {
 
       default:
         throw new UnexpectedTokenException(
-          `Unexpected token type: ${token.type}`,
+          `Unexpected token type: ${token.type} with value: ${token.value}`,
           this.reader.getCurrentPosition(),
         );
     }

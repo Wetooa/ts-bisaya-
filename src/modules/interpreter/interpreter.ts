@@ -291,6 +291,9 @@ export class Interpreter {
       case "*":
         return left * right;
       case "/":
+        if (expression.dataType === "NUMERO") {
+          return Math.floor(left / right);
+        }
         return left / right;
       case "%":
         return left % right;
