@@ -1,6 +1,4 @@
 import { describe, test } from "bun:test";
-import { tokenize } from "../../modules/lexer";
-import { parse } from "../../modules/parser";
 
 describe("Lexer", () => {
   // test("tokens parsed properly", () => {

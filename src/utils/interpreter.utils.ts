@@ -1,8 +1,8 @@
 import fs from "fs";
 
 import path from "path";
-import type TestCase from "../../types/interpreter/testcase";
-import { InterpreterException } from "../../exceptions/interpreter";
+import { InterpreterException } from "../exceptions/interpreter.exceptions";
+import type TestCase from "../types/interpreter.types";
 
 export function readFile(filePath: string): string {
   return fs.readFileSync(filePath, "utf-8");

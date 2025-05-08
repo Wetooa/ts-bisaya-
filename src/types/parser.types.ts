@@ -1,5 +1,8 @@
-import type { ASTNodeTypes } from "./ast-node-types";
-import type { DataType } from "./data-type";
+import type { AST_NODE_TYPES } from "../constants/parser/ast-node-types";
+import type { DATA_TYPE } from "../constants/parser/data-type";
+
+export type DataType = (typeof DATA_TYPE)[number];
+export type ASTNodeTypes = (typeof AST_NODE_TYPES)[number];
 
 export interface Statement {
   type: ASTNodeTypes;

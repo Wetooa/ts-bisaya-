@@ -1,9 +1,5 @@
-import { TokenType } from "./token-type";
+import type { TokenType } from "../../types/lexer.types";
 
-/**
- * Maps language-specific keywords to their corresponding token types.
- * This enables the lexer to identify special words in the source language.
- */
 export const KEYWORDS: Record<string, TokenType> = {
   // Block structure keywords
   SUGOD: "START_BLOCK", // Start of a block (equivalent to "begin")
