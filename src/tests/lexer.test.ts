@@ -8,7 +8,8 @@ import { readTestCases } from "../utils/interpreter.utils";
 
 describe("Lexer", () => {
   test("tokenizes basic expressions correctly", () => {
-    const input = "123 MUGNA <= <> > 23\n what_ever NUMERO OO O O x, y, z, abc";
+    const input =
+      '123 MUGNA <= <> > 23\n what_ever NUMERO "OO" O O x, y, z, abc';
     const tokens = tokenize(input);
 
     expect(tokens[0]?.type).toBe("WHOLE_NUMERIC_LITERAL");
@@ -40,10 +41,10 @@ describe("Lexer", () => {
     expect(tokens[9]?.type).toBe("BOOLEAN_LITERAL");
     expect(tokens[9]?.value).toBe("OO");
 
-    expect(tokens[10]?.type).toBe("IDENTIFIER");
+    expect(tokens[10]?.type).toBe("LOGICAL_OPERATOR");
     expect(tokens[10]?.value).toBe("O");
 
-    expect(tokens[11]?.type).toBe("IDENTIFIER");
+    expect(tokens[11]?.type).toBe("LOGICAL_OPERATOR");
     expect(tokens[11]?.value).toBe("O");
 
     expect(tokens[12]?.type).toBe("IDENTIFIER");
@@ -51,6 +52,21 @@ describe("Lexer", () => {
 
     expect(tokens[13]?.type).toBe("COMMA");
     expect(tokens[13]?.value).toBe(",");
+
+    expect(tokens[14]?.type).toBe("IDENTIFIER");
+    expect(tokens[14]?.value).toBe("y");
+
+    expect(tokens[15]?.type).toBe("COMMA");
+    expect(tokens[15]?.value).toBe(",");
+
+    expect(tokens[16]?.type).toBe("IDENTIFIER");
+    expect(tokens[16]?.value).toBe("z");
+
+    expect(tokens[17]?.type).toBe("COMMA");
+    expect(tokens[17]?.value).toBe(",");
+
+    expect(tokens[18]?.type).toBe("IDENTIFIER");
+    expect(tokens[18]?.value).toBe("abc");
   });
 
   test("tokenizes numeric literals correctly", () => {
@@ -74,7 +90,7 @@ describe("Lexer", () => {
   });
 
   test("tokenizes operators correctly", () => {
-    const input = "+ - * / % ++ -- = == <= >= <> <";
+    const input = "+ - * / % ++ = == <= >= <> <";
     const tokens = tokenize(input);
 
     expect(tokens[0]?.type).toBe("ARITHMETIC_OPERATOR");
@@ -95,26 +111,23 @@ describe("Lexer", () => {
     expect(tokens[5]?.type).toBe("INCREMENT_OPERATOR");
     expect(tokens[5]?.value).toBe("++");
 
-    expect(tokens[6]?.type).toBe("DECREMENT_OPERATOR");
-    expect(tokens[6]?.value).toBe("--");
+    expect(tokens[6]?.type).toBe("ASSIGNMENT_OPERATOR");
+    expect(tokens[6]?.value).toBe("=");
 
-    expect(tokens[7]?.type).toBe("ASSIGNMENT_OPERATOR");
-    expect(tokens[7]?.value).toBe("=");
+    expect(tokens[7]?.type).toBe("RELATIONAL_OPERATOR");
+    expect(tokens[7]?.value).toBe("==");
 
     expect(tokens[8]?.type).toBe("RELATIONAL_OPERATOR");
-    expect(tokens[8]?.value).toBe("==");
+    expect(tokens[8]?.value).toBe("<=");
 
     expect(tokens[9]?.type).toBe("RELATIONAL_OPERATOR");
-    expect(tokens[9]?.value).toBe("<=");
+    expect(tokens[9]?.value).toBe(">=");
 
     expect(tokens[10]?.type).toBe("RELATIONAL_OPERATOR");
-    expect(tokens[10]?.value).toBe(">=");
+    expect(tokens[10]?.value).toBe("<>");
 
     expect(tokens[11]?.type).toBe("RELATIONAL_OPERATOR");
-    expect(tokens[11]?.value).toBe("<>");
-
-    expect(tokens[12]?.type).toBe("RELATIONAL_OPERATOR");
-    expect(tokens[12]?.value).toBe("<");
+    expect(tokens[11]?.value).toBe("<");
   });
 
   test("tokenizes string literals correctly", () => {
@@ -159,7 +172,7 @@ describe("Lexer", () => {
 
   test("tokenizes keywords correctly", () => {
     const input =
-      "SUGOD KATAPUSAN KUNG KUNDI ALANG SA PUNDOK NUMERO TIPIK LETRA TINUOD SULAOD LETRA IPAGAWAS";
+      "SUGOD KATAPUSAN KUNG WALA ALANG SA PUNDOK NUMERO TIPIK LETRA TINUOD SULAOD LETRA IPAGAWAS";
     const tokens = tokenize(input);
 
     expect(tokens[0]?.type).toBe("START_BLOCK");
@@ -172,7 +185,7 @@ describe("Lexer", () => {
     expect(tokens[2]?.value).toBe("KUNG");
 
     expect(tokens[3]?.type).toBe("ELSE_BLOCK_DECLARATION");
-    expect(tokens[3]?.value).toBe("KUNDI");
+    expect(tokens[3]?.value).toBe("WALA");
 
     expect(tokens[4]?.type).toBe("FOR_LOOP_DECLARATION");
     expect(tokens[4]?.value).toBe("ALANG");

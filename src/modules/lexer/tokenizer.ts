@@ -237,7 +237,6 @@ export class Tokenizer {
         this.reader.advance();
         break;
       case "+":
-      case "-":
         if (this.reader.peek(1) === char) {
           this.tokens.push(
             createToken(
@@ -248,11 +247,13 @@ export class Tokenizer {
           this.reader.advance(2);
           break;
         }
-
         this.tokens.push(createToken("ARITHMETIC_OPERATOR", char));
         this.reader.advance();
         break;
-
+      case "-":
+        this.tokens.push(createToken("ARITHMETIC_OPERATOR", char));
+        this.reader.advance();
+        break;
       case "*":
       case "/":
       case "%":
