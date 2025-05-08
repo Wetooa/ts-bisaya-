@@ -11,10 +11,12 @@ export function run(input: string, isRepl = false, isDebug = false) {
   const lexer = new Tokenizer(isRepl);
   const parser = new Parser(isRepl);
   const interpreter = new Interpreter();
+
   let output = "";
 
   if (isDebug) {
     try {
+      const startTime = performance.now();
       const tokens = lexer.tokenize(input);
       console.log("Tokens:", tokens);
 
@@ -22,22 +24,30 @@ export function run(input: string, isRepl = false, isDebug = false) {
       console.log("AST:", ast);
 
       output = interpreter.interpret(ast);
-      console.log("==== SUCCESS =====");
-      console.log("Output:\n", output);
+      const endTime = performance.now();
+
+      const executionTime = (endTime - startTime).toFixed(2);
+      console.log("\n✅ SUCCESS");
+      console.log(`⏱️  Execution time: ${executionTime}ms`);
     } catch (error) {
-      console.log("==== FAIL =====");
-      throw new Error(`Error: ${error}`);
+      console.log("\n❌ FAIL");
+      console.log(`🔴 Error: ${error}`);
     }
   } else {
     try {
+      const startTime = performance.now();
       const tokens = lexer.tokenize(input);
       const ast = parser.parse(tokens);
       output = interpreter.interpret(ast);
 
-      console.log("==== SUCCESS =====");
       console.log("Output:\n", output);
+      const endTime = performance.now();
+      const executionTime = (endTime - startTime).toFixed(2);
+      console.log("\n✅ SUCCESS");
+      console.log(`⏱️  Execution time: ${executionTime}ms`);
     } catch (error) {
-      console.log("==== FAIL =====");
+      console.log("\n❌ FAIL");
+      console.log(`🔴 Error: ${error}`);
     }
   }
 
@@ -80,7 +90,7 @@ KATAPUSAN
 
 input = `
 SUGOD
-      MUGNA TINUOD p = "OO"
+      MUGNA TINUOD p = "DILI"
       MUGNA TINUOD q = "DILI"
       MUGNA TINUOD result1
       MUGNA TINUOD result2
@@ -93,4 +103,4 @@ SUGOD
 KATAPUSAN
 `;
 
-run(input, false, true);
+run(input, false, false);
