@@ -1,14 +1,10 @@
-import { describe, expect, test, beforeEach, mock } from "bun:test";
-import { run } from "..";
-import { readTestCases } from "../utils/interpreter.utils";
+import { beforeEach, describe, expect, mock, test } from "bun:test";
+import readlineSync from "readline-sync";
+import { InvalidVariableTypeError } from "../exceptions/interpreter.exceptions";
 import { Interpreter } from "../modules/interpreter/interpreter";
 import { Tokenizer } from "../modules/lexer/tokenizer";
 import { Parser } from "../modules/parser/parser";
-import {
-  InvalidInputLengthException,
-  InvalidVariableTypeError,
-} from "../exceptions/interpreter.exceptions";
-import readlineSync from "readline-sync";
+import { readTestCases } from "../utils/interpreter.utils";
 
 // Mock readline-sync to control inputs
 mock.module("readline-sync", () => ({
@@ -455,6 +451,7 @@ describe("Interpreter", () => {
     expect(result).toBe("153\nOO"); // 153 is an Armstrong number (1³ + 5³ + 3³ = 153)
   });
 
+  // NOTE: commented for now as the interpreter does not support arrays yet
   // test("Pascal's triangle row calculation", () => {
   //   const source = `SUGOD
   //     MUGNA NUMERO n = 5  -- Calculate the 5th row (0-indexed)
