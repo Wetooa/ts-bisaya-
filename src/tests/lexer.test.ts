@@ -217,6 +217,7 @@ describe("Lexer", () => {
     expect(tokens[0]?.type).toBe("NEWLINE");
     expect(tokens[1]?.type).toBe("WHOLE_NUMERIC_LITERAL");
     expect(tokens[1]?.value).toBe("123");
+
     // Second comment should be skipped
     expect(tokens[2]?.type).toBe("NEWLINE");
     expect(tokens[3]?.type).toBe("IDENTIFIER");
