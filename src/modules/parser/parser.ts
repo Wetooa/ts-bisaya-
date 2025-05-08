@@ -453,7 +453,7 @@ export class Parser {
   }
 
   private parseAssignmentExpression(): Expression {
-    let left = this.parseLogicalUnaryExpression();
+    let left = this.parseLogicalExpression();
 
     // NOTE: IF IT'S AN IDENTIFIER, CHECK IF IT'S DECLARED
     this.assertExpressionPresent(left);
@@ -492,7 +492,7 @@ export class Parser {
 
     if (this.currentToken.type === "ASSIGNMENT_OPERATOR") {
       this.reader.eat();
-      const right = this.parseAssignmentExpression();
+      const right = this.parseLogicalExpression();
 
       this.assertExpressionDataTypeMatching(left, right);
 
@@ -507,61 +507,6 @@ export class Parser {
     return left;
   }
 
-  private parseLogicalUnaryExpression(): Expression {
-    const token = this.currentToken;
-
-    if (token.type === "LOGICAL_OPERATOR" && token.value === "DILI") {
-      this.reader.eat();
-      const right = this.parseExpression();
-      const left = {
-        type: "BOOLEAN_LITERAL",
-        dataType: "TINUOD",
-        value: true,
-      };
-
-      this.assertExpressionDataTypeMatching(left as Expression, right);
-
-      return {
-        type: "BINARY_EXPRESSION",
-        dataType: right.dataType,
-        operator: "O",
-        left,
-        right,
-      } as BinaryExpression;
-    }
-
-    return this.parseArithmeticUnaryExpression();
-  }
-
-  private parseArithmeticUnaryExpression(): Expression {
-    const token = this.currentToken;
-
-    if (
-      token.type === "ARITHMETIC_OPERATOR" &&
-      (token.value === "-" || token.value === "+")
-    ) {
-      this.reader.eat();
-      const right = this.parseExpression();
-      const left = {
-        type: "NUMERIC_LITERAL",
-        value: 0,
-        dataType: right.dataType,
-      };
-
-      this.assertExpressionDataTypeMatching(left as Expression, right);
-
-      return {
-        type: "BINARY_EXPRESSION",
-        dataType: right.dataType,
-        operator: token.value[0],
-        left,
-        right,
-      } as BinaryExpression;
-    }
-
-    return this.parseLogicalExpression();
-  }
-
   private parseLogicalExpression(): Expression {
     let left = this.parseRelationalExpression();
 
@@ -570,7 +515,7 @@ export class Parser {
       this.currentToken.type === "LOGICAL_OPERATOR"
     ) {
       const operator = this.reader.eat()!.value;
-      const right = this.parseLogicalExpression();
+      const right = this.parseRelationalExpression();
 
       this.assertExpressionDataTypeMatching(
         {
@@ -601,7 +546,7 @@ export class Parser {
       this.currentToken.type === "RELATIONAL_OPERATOR"
     ) {
       const operator = this.reader.eat()!.value;
-      const right = this.parseRelationalExpression();
+      const right = this.parseAdditiveExpression();
 
       this.assertExpressionDataTypeMatching(left, right);
 
@@ -626,7 +571,7 @@ export class Parser {
       (this.currentToken.value === "+" || this.currentToken.value === "-")
     ) {
       const operator = this.reader.eat()!.value;
-      const right = this.parseAdditiveExpression();
+      const right = this.parseMultiplicativeExpression();
 
       this.assertExpressionDataTypeMatching(left, right);
 
@@ -643,7 +588,7 @@ export class Parser {
   }
 
   private parseMultiplicativeExpression(): Expression {
-    let left = this.parsePrimaryExpression();
+    let left = this.parseLogicalUnaryExpression();
 
     while (
       !this.reader.isEnd() &&
@@ -653,7 +598,7 @@ export class Parser {
         this.currentToken.value === "%")
     ) {
       const operator = this.reader.eat()!.value;
-      const right = this.parseMultiplicativeExpression();
+      const right = this.parseLogicalUnaryExpression();
 
       this.assertExpressionDataTypeMatching(left, right);
 
@@ -667,6 +612,61 @@ export class Parser {
     }
 
     return left;
+  }
+
+  private parseLogicalUnaryExpression(): Expression {
+    const token = this.currentToken;
+
+    if (token.type === "LOGICAL_OPERATOR" && token.value === "DILI") {
+      this.reader.eat();
+      const right = this.parseArithmeticUnaryExpression();
+      const left = {
+        type: "BOOLEAN_LITERAL",
+        dataType: "TINUOD",
+        value: true,
+      };
+
+      this.assertExpressionDataTypeMatching(left as Expression, right);
+
+      return {
+        type: "BINARY_EXPRESSION",
+        dataType: right.dataType,
+        operator: "O",
+        left,
+        right,
+      } as BinaryExpression;
+    }
+
+    return this.parseArithmeticUnaryExpression();
+  }
+
+  private parseArithmeticUnaryExpression(): Expression {
+    const token = this.currentToken;
+
+    if (
+      token.type === "ARITHMETIC_OPERATOR" &&
+      (token.value === "-" || token.value === "+")
+    ) {
+      this.reader.eat();
+      const right = this.parsePrimaryExpression();
+      const left = {
+        type: "NUMERIC_LITERAL",
+        value: 0,
+        dataType: right.dataType,
+      };
+
+      this.assertExpressionDataTypeMatching(left as Expression, right);
+
+      return {
+        type: "BINARY_EXPRESSION",
+        dataType: right.dataType,
+        operator: token.value[0],
+        left,
+        right,
+      } as BinaryExpression;
+    }
+
+    return this.parsePrimaryExpression();
   }
 
   private parsePrimaryExpression(): Expression {
