@@ -3,8 +3,12 @@ import {
   EmptyCharLiteralException,
   UnterminatedStringException,
 } from "../exceptions/lexer.exceptions";
-import { tokenize } from "../modules/lexer";
 import { readTestCases } from "../utils/interpreter.utils";
+import { Tokenizer } from "../modules/lexer/tokenizer";
+
+const tokenize = (input: string) => {
+  return new Tokenizer().tokenize(input);
+};
 
 describe("Lexer", () => {
   test("tokenizes basic expressions correctly", () => {

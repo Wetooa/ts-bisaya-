@@ -38,7 +38,6 @@ export function run(input: string, isRepl = false, isDebug = false) {
       console.log("Output:\n", output);
     } catch (error) {
       console.log("==== FAIL =====");
-      throw new Error(`Error: ${error}`);
     }
   }
 
@@ -53,9 +52,20 @@ SUGOD
   IPAKITA: x & y & "HELLO"
   MUGNA NUMERO z = 2
   x = x + z * (5 - 1)
-  DAWAT: x
+  -- DAWAT: x
   IPAKITA: x
+
+  MUGNA NUMERO i, j
+  MUGNA LETRA c = 'A'
+  ALANG SA (i = 0, i < 5, i = i++)
+  PUNDOK {
+    ALANG SA (j = 0, j < 5, j = j++)
+    PUNDOK {
+      IPAKITA: c
+    }
+    IPAKITA: $
+  }
 KATAPUSAN
 `;
 
-run(input);
+run(input, false, true);

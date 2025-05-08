@@ -172,7 +172,7 @@ export class Parser {
     const condition = this.parseExpression();
     const dataType = this.getDataType(condition);
 
-    if (condition.dataType !== "BOOLEAN") {
+    if (condition.dataType !== "TINUOD") {
       throw new DataTypeMismatchException(
         "BOOLEAN",
         dataType,
@@ -306,7 +306,7 @@ export class Parser {
 
     const startValue = this.parseExpression();
 
-    if (startValue.dataType !== "INT" && startValue.dataType !== "FLOAT") {
+    if (startValue.dataType !== "NUMERO" && startValue.dataType !== "TIPIK") {
       throw new DataTypeMismatchException(
         startValue.dataType,
         "numeric type",
@@ -319,7 +319,7 @@ export class Parser {
     // Condition
     const condition = this.parseExpression();
 
-    if (condition.dataType !== "BOOLEAN") {
+    if (condition.dataType !== "TINUOD") {
       throw new DataTypeMismatchException(
         condition.dataType,
         "BOOLEAN",

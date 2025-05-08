@@ -332,13 +332,13 @@ export class Interpreter {
 
   private getDefaultValueForType(dataType: string): any {
     switch (dataType) {
-      case "INT":
+      case "NUMERO":
         return 0;
-      case "FLOAT":
+      case "TIPIK":
         return 0.0;
-      case "CHAR":
+      case "LETRA":
         return "";
-      case "BOOLEAN":
+      case "TINUOD":
         return false;
       case "STRING":
         return "";
