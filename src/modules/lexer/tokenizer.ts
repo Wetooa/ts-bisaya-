@@ -23,12 +23,15 @@ export class Tokenizer {
   private tokens: Token[] = [];
   private isRepl: boolean;
 
-  constructor(input: string, isRepl: boolean = false) {
-    this.reader = new StringReader(input);
+  constructor(isRepl: boolean = false) {
+    this.reader = new StringReader("");
     this.isRepl = isRepl;
   }
 
-  public tokenize(): Token[] {
+  public tokenize(input: string): Token[] {
+    this.reader = new StringReader(input);
+    this.tokens = [];
+
     while (!this.reader.isAtEnd()) {
       const char = this.reader.peek();
 

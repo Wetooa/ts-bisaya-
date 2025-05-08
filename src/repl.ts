@@ -1,8 +1,13 @@
 import readlineSync from "readline-sync";
-import { run } from ".";
+import { Interpreter } from "./modules/interpreter/interpreter";
+import { Tokenizer } from "./modules/lexer/tokenizer";
+import { Parser } from "./modules/parser/parser";
 
 async function repl() {
   console.log('Welcome to the REPL! Type "exit" to quit.');
+  const lexer = new Tokenizer(true);
+  const parser = new Parser(true);
+  const interpreter = new Interpreter(true);
 
   while (true) {
     const input = readlineSync.question("> ") + "\n";
@@ -11,7 +16,14 @@ async function repl() {
       break;
     }
 
-    run(input, true);
+    try {
+      const tokens = lexer.tokenize(input);
+      const ast = parser.parse(tokens);
+      const output = interpreter.interpret(ast);
+      console.log(output);
+    } catch (error) {
+      console.error(`Error: ${error}`);
+    }
   }
 
   console.log("Goodbye!");

@@ -28,23 +28,27 @@ export class Interpreter {
   >;
   private output: string;
   private line: number;
-  private program: Program;
+  private program?: Program;
+  private isRepl: boolean;
 
-  constructor(program: Program) {
+  constructor(isRepl: boolean) {
     this.variables = new Map();
     this.output = "";
-    this.program = program;
     this.line = 0;
+    this.isRepl = isRepl;
   }
 
-  public interpret(): string {
+  public interpret(program: Program): string {
+    this.output = "";
+    this.line = 0;
+    this.program = program;
     this.executeStatements(this.program.body);
     return this.output;
   }
 
   private executeStatements(statements: Statement[]): void {
-    for (const statement of statements) {
-      this.executeStatement(statement);
+    while (this.line < statements.length) {
+      this.executeStatement(statements[this.line]!);
       this.line++;
     }
   }
@@ -246,7 +250,7 @@ export class Interpreter {
 
       default:
         throw new Error(
-          `Exception line ${this.program.body[this.line]} >>> Unknown expression type: ${expression.type}`,
+          `Exception line ${this.program!.body[this.line]} >>> Unknown expression type: ${expression.type}`,
         );
     }
   }

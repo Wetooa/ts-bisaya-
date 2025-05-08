@@ -34,8 +34,8 @@ export class Parser {
   private reader: TokenReader;
   private isRepl;
 
-  constructor(tokens: Token[], isRepl = false) {
-    this.reader = new TokenReader(tokens);
+  constructor(isRepl = false) {
+    this.reader = new TokenReader([]);
     this.isRepl = isRepl;
   }
 
@@ -126,7 +126,9 @@ export class Parser {
     return x;
   }
 
-  public parse(): Program {
+  public parse(tokens: Token[]): Program {
+    this.reader = new TokenReader(tokens);
+
     const program = { type: "PROGRAM", body: [] } as Program;
 
     if (!this.isRepl) {
