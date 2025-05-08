@@ -975,4 +975,106 @@ describe("Interpreter", () => {
 
     expect(result).toBe("30"); // -(-10) + -(-(10 * 2)) = 10 + 20 = 30
   });
+
+  test("Arithmetic operator precedence with multiple terms", () => {
+    const source = `SUGOD
+      IPAKITA: 1 + 2 * 3 + 4 * 5
+    KATAPUSAN`;
+
+    const tokens = new Tokenizer().tokenize(source);
+    const ast = new Parser().parse(tokens);
+    const result = interpreter.interpret(ast);
+
+    expect(result).toBe("27"); // 1 + (2*3) + (4*5) = 1 + 6 + 20 = 27
+  });
+
+  test("Complex boolean logic with multiple operators", () => {
+    const source = `SUGOD
+      MUGNA TINUOD a = "OO"
+      MUGNA TINUOD b = "DILI"
+      MUGNA TINUOD c = "OO"
+      MUGNA TINUOD d = "DILI"
+      IPAKITA: a UG b O c UG d
+    KATAPUSAN`;
+
+    const tokens = new Tokenizer().tokenize(source);
+    const ast = new Parser().parse(tokens);
+    const result = interpreter.interpret(ast);
+
+    expect(result).toBe("DILI"); // (true AND false) OR (true AND false) = false OR false = false
+  });
+
+  test("Mixed operators with different precedence levels", () => {
+    const source = `SUGOD
+      MUGNA NUMERO x = 10
+      MUGNA NUMERO y = 5
+      IPAKITA: x - y * 2 + x / y
+    KATAPUSAN`;
+
+    const tokens = new Tokenizer().tokenize(source);
+    const ast = new Parser().parse(tokens);
+    const result = interpreter.interpret(ast);
+
+    expect(result).toBe("2"); // 10 - (5 * 2) + (10 / 5) = 10 - 10 + 2 = 2
+  });
+
+  test("Unary operations with variables", () => {
+    const source = `SUGOD
+      MUGNA NUMERO x = -7
+      MUGNA NUMERO y = -3
+      IPAKITA: -x * -y
+    KATAPUSAN`;
+
+    const tokens = new Tokenizer().tokenize(source);
+    const ast = new Parser().parse(tokens);
+    const result = interpreter.interpret(ast);
+
+    expect(result).toBe("21"); // -(-7) * -(-3) = 7 * 3 = 21
+  });
+
+  test("Deeply nested expressions with mixed operators", () => {
+    const source = `SUGOD
+      MUGNA NUMERO a = 2
+      MUGNA NUMERO b = 3
+      MUGNA NUMERO c = 4
+      IPAKITA: a * (b + c) / (a + b) * c - a
+    KATAPUSAN`;
+
+    const tokens = new Tokenizer().tokenize(source);
+    const ast = new Parser().parse(tokens);
+    const result = interpreter.interpret(ast);
+
+    expect(result).toBe("6"); // 2 * (3 + 4) / (2 + 3) * 4 - 2 = 2 * 7 / 5 * 4 - 2 = 14 / 5 * 4 - 2 = 2 * 4 - 2 = 8 - 2 = 6
+  });
+
+  test("Boolean operations with mixed precedence", () => {
+    const source = `SUGOD
+      MUGNA TINUOD p = "OO"
+      MUGNA TINUOD q = "DILI"
+      MUGNA TINUOD r = "OO"
+      IPAKITA: p O q UG r
+    KATAPUSAN`;
+
+    const tokens = new Tokenizer().tokenize(source);
+    const ast = new Parser().parse(tokens);
+    const result = interpreter.interpret(ast);
+
+    expect(result).toBe("OO"); // p OR (q AND r) = true OR (false AND true) = true OR false = true
+  });
+
+  test("Complex expression with all operators", () => {
+    const source = `SUGOD
+      MUGNA NUMERO a = 5
+      MUGNA NUMERO b = 3
+      MUGNA TINUOD c = "OO"
+      MUGNA TINUOD d = "DILI"
+      IPAKITA: (a > b UG c) O (a < b UG d) O a + b == 8
+    KATAPUSAN`;
+
+    const tokens = new Tokenizer().tokenize(source);
+    const ast = new Parser().parse(tokens);
+    const result = interpreter.interpret(ast);
+
+    expect(result).toBe("OO"); // ((5 > 3) AND true) OR ((5 < 3) AND false) OR (5 + 3 == 8) = (true AND true) OR (false AND false) OR true = true OR false OR true = true
+  });
 });
