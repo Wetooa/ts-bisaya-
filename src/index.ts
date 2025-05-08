@@ -54,16 +54,23 @@ SUGOD
   x = x + z * (5 - 1)
   -- DAWAT: x
   IPAKITA: x
+  IPAKITA: $
 
   MUGNA NUMERO i, j
   MUGNA LETRA c = 'A'
-  ALANG SA (i = 0, i < 5, i = i++)
+  ALANG SA (i = 0, i < 5, i++)
   PUNDOK {
-    ALANG SA (j = 0, j < 5, j = j++)
+    ALANG SA (j = 0, j < 5, j++)
     PUNDOK {
       IPAKITA: c
     }
     IPAKITA: $
+  }
+
+  IPAKITA: x
+
+  KUNG (x > 5) PUNDOK {
+    IPAKITA: "Greater than 5"
   }
 KATAPUSAN
 `;

@@ -49,8 +49,8 @@ export class Interpreter {
   }
 
   private executeStatements(statements: Statement[]): void {
-    while (this.line < statements.length) {
-      this.executeStatement(statements[this.line]!);
+    for (let i = 0; i < statements.length; i++) {
+      this.executeStatement(statements[i]!);
       this.line++;
     }
   }
