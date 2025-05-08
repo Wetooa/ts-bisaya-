@@ -51,8 +51,7 @@ export interface IfStatement extends Statement {
 
 export interface ForLoop extends Statement {
   type: "FOR_LOOP";
-  identifier: string;
-  startValue: Expression;
+  startExpression: Expression;
   condition: Expression;
   increment: Expression;
   body: CodeBlock;

@@ -44,7 +44,9 @@ export function run(input: string, isRepl = false, isDebug = false) {
   return output;
 }
 
-const input = `
+let input = "";
+
+input = `
 SUGOD 
   MUGNA NUMERO x = 1
   IPAKITA: x
@@ -58,11 +60,11 @@ SUGOD
 
   MUGNA NUMERO i, j
   MUGNA LETRA c = 'A'
-  ALANG SA (i = 0, i < 5, i++)
+  ALANG SA (i = 1, i <= 5, i++)
   PUNDOK {
-    ALANG SA (j = 0, j < 5, j++)
+    ALANG SA (j = 0, j < i, j++)
     PUNDOK {
-      IPAKITA: c
+      IPAKITA: c & ' '
     }
     IPAKITA: $
   }
@@ -72,6 +74,7 @@ SUGOD
   KUNG (x > 5) PUNDOK {
     IPAKITA: "Greater than 5"
   }
+
 KATAPUSAN
 `;
 

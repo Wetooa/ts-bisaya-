@@ -293,44 +293,11 @@ export class Parser {
       "Expected opening parenthesis for loop",
     );
 
-    const identifier = this.reader.expectType(
-      "IDENTIFIER",
-      "Expected identifier for loop variable",
-    );
-
-    this.reader.expectType(
-      "ASSIGNMENT_OPERATOR",
-      "Expected assignment operator",
-    );
-
-    const startValue = this.parseExpression();
-
-    if (startValue.dataType !== "NUMERO" && startValue.dataType !== "TIPIK") {
-      throw new DataTypeMismatchException(
-        startValue.dataType,
-        "numeric type",
-        this.reader.getCurrentPosition(),
-      );
-    }
-
+    const start = this.parseExpression();
     this.reader.expectType("COMMA", "Expected comma after start value");
-
-    // Condition
     const condition = this.parseExpression();
-
-    if (condition.dataType !== "TINUOD") {
-      throw new DataTypeMismatchException(
-        condition.dataType,
-        "BOOLEAN",
-        this.reader.getCurrentPosition(),
-      );
-    }
-
     this.reader.expectType("COMMA", "Expected comma after condition");
-
-    // Increment
     const increment = this.parseExpression();
-
     this.reader.expectType("CLOSE_PARENTHESIS", "Expected closing parenthesis");
     this.removeSkippableTokens();
 
@@ -340,8 +307,7 @@ export class Parser {
     this.reader.expectType("NEWLINE", "Expected newline after if statement");
     return {
       type: "FOR_LOOP",
-      identifier: identifier.value,
-      startValue: startValue,
+      startExpression: start,
       condition: condition,
       increment: increment,
       body: body,

@@ -226,15 +226,7 @@ export class Interpreter {
 
   private executeForLoop(statement: ForLoop): void {
     // Initialize loop variable
-    const variableName = statement.identifier;
-    const startValue = this.evaluateExpression(statement.startValue);
-
-    if (!this.variables.has(variableName)) {
-      throw new Error(`Loop variable ${variableName} is not defined`);
-    }
-
-    const variable = this.variables.get(variableName)!;
-    variable.value = startValue;
+    this.evaluateExpression(statement.startExpression);
 
     // Loop execution
     while (this.evaluateExpression(statement.condition)) {

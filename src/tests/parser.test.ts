@@ -1,7 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { Tokenizer } from "../modules/lexer/tokenizer";
 import { Parser } from "../modules/parser/parser";
-import type { CodeBlock } from "../types/parser.types";
 
 describe("Parser", () => {
   test("parse simple numeric literals", () => {
@@ -488,10 +487,16 @@ IPAKITA: x & x * 2 & "Result"
 
       expect(ast.body[1]).toMatchObject({
         type: "FOR_LOOP",
-        identifier: "i",
-        startValue: {
-          type: "NUMERIC_LITERAL",
-          value: 0,
+        startExpression: {
+          type: "ASSIGNMENT_EXPRESSION",
+          assignee: {
+            type: "IDENTIFIER",
+            value: "i",
+          },
+          value: {
+            type: "NUMERIC_LITERAL",
+            value: 0,
+          },
         },
         condition: {
           type: "BINARY_EXPRESSION",
