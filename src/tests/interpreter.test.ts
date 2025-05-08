@@ -883,4 +883,96 @@ describe("Interpreter", () => {
 
     expect(result).toBe("2"); // 2 + ((3 * 4) % 5) - (6 / 3) = 2 + (12 % 5) - 2 = 2 + 2 - 2 = 2
   });
+
+  test("Unary operations with parentheses", () => {
+    const source = `SUGOD
+      IPAKITA: -(-(5 + 3))
+    KATAPUSAN`;
+
+    const tokens = new Tokenizer().tokenize(source);
+    const ast = new Parser().parse(tokens);
+    const result = interpreter.interpret(ast);
+
+    expect(result).toBe("8"); // -(-(5 + 3)) = -(-(8)) = -((-8)) = 8
+  });
+
+  test("Complex nested arithmetic with unary operators", () => {
+    const source = `SUGOD
+      IPAKITA: 2 * -3 + 4 * -(1 + 2)
+    KATAPUSAN`;
+
+    const tokens = new Tokenizer().tokenize(source);
+    const ast = new Parser().parse(tokens);
+    const result = interpreter.interpret(ast);
+
+    expect(result).toBe("-18"); // 2 * -3 + 4 * -(1 + 2) = -6 + 4 * -3 = -6 + -12 = -18
+  });
+
+  test("Unary negation with boolean expressions", () => {
+    const source = `SUGOD
+      MUGNA TINUOD a = "OO"
+      MUGNA TINUOD b = "DILI"
+      IPAKITA: DILI(a) == b
+    KATAPUSAN`;
+
+    const tokens = new Tokenizer().tokenize(source);
+    const ast = new Parser().parse(tokens);
+    const result = interpreter.interpret(ast);
+
+    expect(result).toBe("OO"); // NOT(true) == false = true
+  });
+
+  test("Mixed precedence with arithmetic, relational and logical operators", () => {
+    const source = `SUGOD
+      MUGNA NUMERO x = 5
+      MUGNA NUMERO y = 3
+      IPAKITA: x + y * 2 > x * 2 UG y < x
+    KATAPUSAN`;
+
+    const tokens = new Tokenizer().tokenize(source);
+    const ast = new Parser().parse(tokens);
+    const result = interpreter.interpret(ast);
+
+    expect(result).toBe("DILI"); // (5 + (3 * 2) > (5 * 2)) AND (3 < 5) = (5 + 6 > 10) AND true = false AND true = false
+  });
+
+  test("Deeply nested arithmetic with mixed operators", () => {
+    const source = `SUGOD
+      IPAKITA: (2 + 3 * (4 - 1)) / (1 + 1) % 3
+    KATAPUSAN`;
+
+    const tokens = new Tokenizer().tokenize(source);
+    const ast = new Parser().parse(tokens);
+    const result = interpreter.interpret(ast);
+
+    expect(result).toBe("2"); // (2 + 3 * (4 - 1)) / (1 + 1) % 3 = (2 + 3 * 3) / 2 % 3 = (2 + 9) / 2 % 3 = 11 / 2 % 3 = 5 % 3 = 2
+  });
+
+  test("Multiple boolean operations with different precedences", () => {
+    const source = `SUGOD
+      MUGNA TINUOD a = "OO"
+      MUGNA TINUOD b = "DILI"
+      MUGNA TINUOD c = "OO"
+      IPAKITA: DILI(a UG b) O DILI(b) UG c
+    KATAPUSAN`;
+
+    const tokens = new Tokenizer().tokenize(source);
+    const ast = new Parser().parse(tokens);
+    const result = interpreter.interpret(ast);
+
+    expect(result).toBe("OO"); // NOT(true AND false) OR (NOT(false) AND true) = NOT(false) OR (true AND true) = true OR true = true
+  });
+
+  test("Complex expression with multiple unary operators and parentheses", () => {
+    const source = `SUGOD
+      MUGNA NUMERO x = 10
+      IPAKITA: -(-x) + -(-(x * 2))
+    KATAPUSAN`;
+
+    const tokens = new Tokenizer().tokenize(source);
+    const ast = new Parser().parse(tokens);
+    const result = interpreter.interpret(ast);
+
+    expect(result).toBe("30"); // -(-10) + -(-(10 * 2)) = 10 + 20 = 30
+  });
 });

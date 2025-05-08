@@ -112,4 +112,12 @@ SUGOD
 KATAPUSAN
 `;
 
-run(input, false, false);
+input = `
+SUGOD
+      MUGNA TINUOD a = "OO"
+      MUGNA TINUOD b = "DILI"
+      IPAKITA: DILI(a) == b
+    KATAPUSAN
+`;
+
+run(input, false, true);
