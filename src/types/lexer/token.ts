@@ -1,4 +1,4 @@
-import type { TokenType } from "../../consts/lexer/token-type";
+import type { TokenType } from "./token-type";
 
 export interface Token {
   type: TokenType;

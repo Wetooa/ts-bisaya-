@@ -1,6 +1,4 @@
 import { describe, expect, test } from "bun:test";
-import { TokenType } from "../../consts/lexer/token-type";
-import { tokenize } from "../../modules/lexer";
 
 describe("Lexer", () => {
   // test("tokenizes basic expressions correctly", () => {

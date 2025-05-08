@@ -1,9 +1,18 @@
-const TESTCASE_LIMIT = 100;
+import fs from "fs";
 
 import path from "path";
 import type TestCase from "../../types/interpreter/testcase";
-import { fileExists, readFile } from "./read-file";
 import { InterpreterException } from "../../exceptions/interpreter";
+
+export function readFile(filePath: string): string {
+  return fs.readFileSync(filePath, "utf-8");
+}
+
+export function fileExists(filePath: string): boolean {
+  return fs.existsSync(filePath);
+}
+
+const TESTCASE_LIMIT = 100;
 
 /**
  * Gets the absolute path to the project root directory

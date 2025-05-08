@@ -1,4 +1,6 @@
-import { SKIPPABLE_SYMBOLS, SYMBOLS } from "../../consts/lexer/symbols";
+import { SKIPPABLE_SYMBOLS, SYMBOLS } from "../../constants/lexer/symbols";
+import type { Token } from "../../types/lexer/token";
+import type { TokenType } from "../../types/lexer/token-type";
 
 export function isSymbol(c: string): boolean {
   return SYMBOLS.has(c);
@@ -18,4 +20,11 @@ export function isAlphaOrUnderscore(c: string): boolean {
 
 export function isAlphaNumOrUnderscore(c: string): boolean {
   return /[a-zA-Z0-9_]/.test(c);
+}
+
+export function createToken(type: TokenType, value: string): Token {
+  return {
+    type,
+    value,
+  };
 }

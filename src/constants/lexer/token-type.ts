@@ -63,6 +63,3 @@ export const TokenType = [
   // End of file marker
   "EOF",
 ] as const;
-
-// Type definition for TokenType - extracts string literal union type from the array
-export type TokenType = (typeof TokenType)[number];

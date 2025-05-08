@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { readTestCases } from "../../utils/interpreter/read-testcases";
 import { run } from "../..";
+import { readTestCases } from "../../utils/interpreter";
 
 describe("Interpreter", () => {
   test("Reads test cases correctly", () => {

@@ -1,4 +1,5 @@
-import type { DataType } from "../../consts/parser/datatype";
+import readlineSync from "readline-sync";
+import type { DataType } from "../../types/parser/data-type";
 import type {
   AssignmentExpression,
   BinaryExpression,
@@ -16,9 +17,7 @@ import type {
   Statement,
   StringLiteral,
   VariableDeclaration,
-} from "../../types/parser";
-
-import readlineSync from "readline-sync";
+} from "../../types/parser/statement";
 
 export class Interpreter {
   private variables: Map<

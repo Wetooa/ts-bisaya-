@@ -1,5 +1,3 @@
-import { TokenType } from "../../consts/lexer/token-type";
-import type { DataType } from "../../consts/parser/datatype";
 import {
   DataTypeMismatchException,
   DatatypeNotFoundException,
@@ -8,7 +6,9 @@ import {
   ParserException,
   UnexpectedTokenException,
 } from "../../exceptions/parser";
-import { type Token } from "../../types/lexer";
+import type { Token } from "../../types/lexer/token";
+import type { TokenType } from "../../types/lexer/token-type";
+import type { DataType } from "../../types/parser/data-type";
 import type {
   AssignmentExpression,
   BinaryExpression,
@@ -27,7 +27,7 @@ import type {
   Statement,
   StringLiteral,
   VariableDeclaration,
-} from "../../types/parser";
+} from "../../types/parser/statement";
 
 export class Parser {
   private tokens: Token[] = [];

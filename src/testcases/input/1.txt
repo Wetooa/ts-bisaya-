@@ -1,31 +1,9 @@
 SUGOD
-	MUGNA NUMERO age
-	MUGNA LETRA s = 's'
-	MUGNA LETRA a = 'a'
-	MUGNA LETRA c = 'c'
-	MUGNA LETRA g
-	MUGNA LETRA b = 'b'
-	MUGNA LETRA l = 'l'
-	DAWAT: age
-	DAWAT: g
-	KUNG (age>=60)
-	PUNDOK{
-		IPAKITA: s
-		KUNG((g=='F') O (g=='f'))
-		PUNDOK{
-			IPAKITA: b
-		}
-		KUNG WALA
-		PUNDOK{
-			IPAKITA: l
-		}
-	}
-	KUNG DILI (age>=18)
-	PUNDOK{
-		IPAKITA: a
-	}
-	KUNG WALA
-	PUNDOK{
-		IPAKITA: c
-	}
+  MUGNA NUMERO a = 3, b = 4, c, d
+  MUGNA TINUOD q = "OO"
+  q = DILI q
+  IPAKITA: q
+  DAWAT: c
+  d=(3+4) *c
+  IPAKITA: d
 KATAPUSAN

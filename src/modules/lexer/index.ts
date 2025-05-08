@@ -1,5 +1,5 @@
-import { KEYWORDS } from "../../consts/lexer/keywords";
-import { TokenType } from "../../consts/lexer/token-type";
+import { KEYWORDS } from "../../constants/lexer/keywords";
+import type { TokenType } from "../../constants/lexer/token-type";
 import { LexerException } from "../../exceptions/lexer";
 import type { Token } from "../../types/lexer";
 import { isSkippable } from "../../utils/lexer";

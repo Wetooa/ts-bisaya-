@@ -1,29 +1,5 @@
-import type { DataType } from "../../consts/parser/datatype";
-
-export const AST_NODE_TYPES = [
-  "PROGRAM",
-
-  "VARIABLE_DECLARATION",
-  "INPUT_STATEMENT",
-  "OUTPUT_STATEMENT",
-  "CODE_BLOCK",
-
-  "IF_STATEMENT",
-  "FOR_LOOP",
-
-  "ASSIGNMENT_EXPRESSION",
-  "BINARY_EXPRESSION",
-
-  "IDENTIFIER",
-
-  "CHAR_LITERAL",
-  "STRING_LITERAL",
-  "BOOLEAN_LITERAL",
-  "NUMERIC_LITERAL",
-
-  "NULL_LITERAL",
-] as const;
-export type ASTNodeTypes = (typeof AST_NODE_TYPES)[number];
+import type { ASTNodeTypes } from "./ast-node-types";
+import type { DataType } from "./data-type";
 
 export interface Statement {
   type: ASTNodeTypes;
