@@ -454,7 +454,6 @@ export class Parser {
 
       this.assertIdentifierNotRedeclared(identifier.value);
 
-      this.setIdentifierDataType(identifier.value, declarationDataType);
       let value = undefined;
 
       if (this.currentToken.type === "ASSIGNMENT_OPERATOR") {
@@ -469,6 +468,8 @@ export class Parser {
           );
         }
       }
+
+      this.setIdentifierDataType(identifier.value, declarationDataType);
 
       result.variables.push({
         identifier: identifier.value,
