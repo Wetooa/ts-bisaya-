@@ -20,6 +20,10 @@ import type {
   CodeBlock,
   CharLiteral,
 } from "../../types/parser.types";
+import {
+  InvalidInputLengthException,
+  InvalidVariableTypeError,
+} from "../../exceptions/interpreter.exceptions";
 
 export class Interpreter {
   private variables: Map<
@@ -146,16 +150,44 @@ export class Interpreter {
 
       // Convert input based on variable type
       switch (variable.type) {
-        case "INT":
+        case "NUMERO":
+          if (isNaN(parseFloat(input))) {
+            throw new InvalidVariableTypeError(
+              "Invalid input type for datatype NUMERO",
+              { line: this.line, column: 0 },
+            );
+          }
+
           variable.value = parseInt(input) || 0;
           break;
-        case "FLOAT":
+        case "TIPIK":
+          if (isNaN(parseFloat(input))) {
+            throw new InvalidVariableTypeError(
+              "Invalid input type for datatype TIPIK",
+              { line: this.line, column: 0 },
+            );
+          }
+
           variable.value = parseFloat(input) || 0.0;
           break;
-        case "CHAR":
-          variable.value = input || "";
+        case "LETRA":
+          if (input.length !== 1) {
+            throw new InvalidInputLengthException(
+              "Invalid input length for datatype LETRA",
+              { line: this.line, column: 0 },
+            );
+          }
+
+          variable.value = input[0] || "";
           break;
-        case "BOOLEAN":
+        case "TINUOD":
+          if (input != "OO" && input != "DILI") {
+            throw new InvalidVariableTypeError(
+              "Invalid input length for datatype TINUOD",
+              { line: this.line, column: 0 },
+            );
+          }
+
           variable.value = input === "OO";
           break;
         default:

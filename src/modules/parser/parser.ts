@@ -51,18 +51,6 @@ export class Parser {
     this.identifierDataTypes.set(identifier, dataType);
   }
 
-  private getTokenDataType(tokenDataType: string): DataType {
-    if (tokenDataType === "LETRA") return "CHAR";
-    if (tokenDataType === "TIPIK") return "FLOAT";
-    if (tokenDataType === "TINUOD") return "BOOLEAN";
-    if (tokenDataType === "NUMERO") return "INT";
-
-    throw new DatatypeNotFoundException(
-      tokenDataType,
-      this.reader.getCurrentPosition(),
-    );
-  }
-
   private getDataType(identifier: Expression): DataType {
     if (identifier.type !== "IDENTIFIER") {
       return identifier.dataType as DataType;
@@ -438,7 +426,7 @@ export class Parser {
       "Expected datatype following MUGNA keyword",
     );
 
-    const declarationDataType = this.getTokenDataType(dataType.value);
+    const declarationDataType = dataType.value as DataType;
 
     const result: VariableDeclaration = {
       type: "VARIABLE_DECLARATION",
@@ -509,12 +497,12 @@ export class Parser {
       const op = this.reader.eat();
 
       this.assertExpressionDataTypeMatching(left, {
-        dataType: "INT",
+        dataType: "NUMERO",
       } as NumericLiteral);
 
       const right = {
         type: "BINARY_EXPRESSION",
-        dataType: "INT",
+        dataType: "NUMERO",
         operator: op.value[0],
         left: {
           type: "IDENTIFIER",
@@ -522,7 +510,7 @@ export class Parser {
         } as Identifier,
         right: {
           type: "NUMERIC_LITERAL",
-          dataType: "INT",
+          dataType: "NUMERO",
           value: 1,
         } as NumericLiteral,
       } as BinaryExpression;
@@ -567,7 +555,7 @@ export class Parser {
       this.assertExpressionDataTypeMatching(
         {
           type: "BOOLEAN_LITERAL",
-          dataType: "BOOLEAN",
+          dataType: "TINUOD",
         },
         left,
       );
@@ -575,7 +563,7 @@ export class Parser {
 
       left = {
         type: "BINARY_EXPRESSION",
-        dataType: "BOOLEAN",
+        dataType: "TINUOD",
         operator,
         left,
         right,
@@ -599,7 +587,7 @@ export class Parser {
 
       left = {
         type: "BINARY_EXPRESSION",
-        dataType: "BOOLEAN",
+        dataType: "TINUOD",
         operator,
         left,
         right,
@@ -692,7 +680,7 @@ export class Parser {
       this.reader.eat();
       const right = this.parsePrimaryExpression();
 
-      if (right.dataType !== "BOOLEAN") {
+      if (right.dataType !== "TINUOD") {
         throw new DataTypeMismatchException(
           right.dataType,
           "BOOLEAN",
@@ -704,7 +692,7 @@ export class Parser {
 
       return {
         type: "BOOLEAN_LITERAL",
-        dataType: "BOOLEAN",
+        dataType: "TINUOD",
         value: !value,
       } as BooleanLiteral;
     }
@@ -730,28 +718,28 @@ export class Parser {
         return {
           type: "NUMERIC_LITERAL",
           value: parseInt(this.reader.eat()!.value),
-          dataType: "INT",
+          dataType: "NUMERO",
         } as NumericLiteral;
 
       case "DECIMAL_NUMERIC_LITERAL":
         return {
           type: "NUMERIC_LITERAL",
           value: parseFloat(this.reader.eat()!.value),
-          dataType: "FLOAT",
+          dataType: "TIPIK",
         } as NumericLiteral;
 
       case "BOOLEAN_LITERAL":
         return {
           type: "BOOLEAN_LITERAL",
           value: this.reader.eat()!.value === "OO" ? true : false,
-          dataType: "BOOLEAN",
+          dataType: "TINUOD",
         } as BooleanLiteral;
 
       case "CHAR_LITERAL":
         return {
           type: "CHAR_LITERAL",
           value: this.reader.eat()!.value,
-          dataType: "CHAR",
+          dataType: "LETRA",
         } as CharLiteral;
 
       case "STRING":
@@ -765,14 +753,14 @@ export class Parser {
         return {
           type: "CHAR_LITERAL",
           value: this.reader.eat()!.value,
-          dataType: "CHAR",
+          dataType: "LETRA",
         };
 
       case "CARRIAGE_RETURN":
         return {
           type: "CHAR_LITERAL",
           value: this.reader.eat()!.value,
-          dataType: "CHAR",
+          dataType: "LETRA",
         };
 
       case "OPEN_PARENTHESIS":

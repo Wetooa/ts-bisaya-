@@ -53,6 +53,7 @@ SUGOD
   IPAKITA: x & y & "HELLO"
   MUGNA NUMERO z = 2
   x = x + z * (5 - 1)
+  DAWAT: x
   IPAKITA: x
 KATAPUSAN
 `;

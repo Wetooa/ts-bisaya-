@@ -22,6 +22,14 @@ export class InvalidVariableTypeError extends InterpreterException {
   }
 }
 
+export class InvalidInputLengthException extends InterpreterException {
+  constructor(message: string, position?: ExceptionPosition) {
+    super(`Invalid input length: ${message}`, position);
+    this.name = "InvalidInputLengthException";
+    Object.setPrototypeOf(this, InvalidInputLengthException.prototype);
+  }
+}
+
 export class UndefinedVariableException extends InterpreterException {
   constructor(variableName: string, position?: ExceptionPosition) {
     super(
