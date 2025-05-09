@@ -142,6 +142,10 @@ export class Parser {
     if (!this.isRepl) {
       this.reader.expectType("END_BLOCK", "Expected KATAPUSAN to end program");
       this.removeSkippableTokens();
+
+      if (!this.reader.isEnd()) {
+        throw new ParserException("Must end with KATAPUSAN");
+      }
     }
 
     return program;

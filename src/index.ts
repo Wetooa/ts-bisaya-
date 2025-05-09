@@ -134,6 +134,7 @@ SUGOD
       MUGNA NUMERO y = 3
       IPAKITA: x + y * 2 > x * 2 UG y < x
     KATAPUSAN
+SUGOD
 `;
 
 run(input, false, true);
