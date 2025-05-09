@@ -65,3 +65,19 @@ export class InvalidCodeBlocksException extends ParserException {
     Object.setPrototypeOf(this, InvalidCodeBlocksException.prototype); // Fix prototype chain
   }
 }
+
+export class MustEndWithKatapusanException extends ParserException {
+  constructor(position?: ExceptionPosition) {
+    super(`Code must end with "KATAPUSAN".`, position);
+    this.name = "MustEndWithKatapusanException";
+    Object.setPrototypeOf(this, MustEndWithKatapusanException.prototype); // Fix prototype chain
+  }
+}
+
+export class MustStartWithSugodException extends ParserException {
+  constructor(position?: ExceptionPosition) {
+    super(`Code must start with "SUGOD".`, position);
+    this.name = "MustStartWithSugodException";
+    Object.setPrototypeOf(this, MustStartWithSugodException.prototype); // Fix prototype chain
+  }
+}

@@ -132,9 +132,50 @@ input = `
 SUGOD
       MUGNA NUMERO x = 5
       MUGNA NUMERO y = 3
-      IPAKITA: x + y * 2 > x * 2 UG y < x
+      IPAKITA: x * (y * y)
     KATAPUSAN
-SUGOD
+
 `;
 
-run(input, false, true);
+input = `
+SUGOD
+      MUGNA NUMERO num = 153
+      MUGNA NUMERO original = num
+      MUGNA NUMERO sum = 0
+      MUGNA NUMERO digit
+      
+      ALANG SA (num, num > 0, num = num / 10)
+      PUNDOK {
+        digit = num % 10
+        sum = sum + (digit * digit * digit)
+      }
+
+      IPAKITA: sum & $
+      
+      KUNG (sum == original) PUNDOK {
+        IPAKITA: "OO"
+      }
+      KUNG WALA PUNDOK {
+        IPAKITA: "DILI"
+      }
+    KATAPUSAN
+KATAPUSAN
+`;
+
+input = `
+SUGOD
+  MUGNA NUMERO x
+  MUGNA TIPIK y
+  DAWAT: x, y
+KATAPUSAN
+`;
+
+input = `
+SUGOD
+  MUGNA NUMERO x = 30, y = 8, z
+  DAWAT: z
+  IPAKITA: x - y / z
+KATAPUSAN
+`;
+
+run(input, false, false);

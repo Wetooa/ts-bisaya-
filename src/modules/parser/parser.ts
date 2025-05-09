@@ -3,6 +3,8 @@ import {
   DatatypeNotFoundException,
   IdentifierNotFoundException,
   IdentifierRedeclarationException,
+  MustEndWithKatapusanException,
+  MustStartWithSugodException,
   ParserException,
   UnexpectedTokenException,
 } from "../../exceptions/parser.exceptions";
@@ -128,6 +130,11 @@ export class Parser {
 
     if (!this.isRepl) {
       this.removeSkippableTokens();
+
+      if (this.currentToken.type !== "START_BLOCK") {
+        throw new MustStartWithSugodException(this.reader.getCurrentPosition());
+      }
+
       this.reader.expectType("START_BLOCK", "Expected SUGOD to start program");
     }
 
@@ -144,7 +151,9 @@ export class Parser {
       this.removeSkippableTokens();
 
       if (!this.reader.isEnd()) {
-        throw new ParserException("Must end with KATAPUSAN");
+        throw new MustEndWithKatapusanException(
+          this.reader.getCurrentPosition(),
+        );
       }
     }
 
@@ -518,10 +527,10 @@ export class Parser {
       const operator = this.reader.eat()!.value;
       const right = this.parseRelationalExpression();
 
-      this.assertExpressionDataTypeMatching(
-        this.createLiteral("TINUOD", true),
-        left,
-      );
+      // this.assertExpressionDataTypeMatching(
+      //   this.createLiteral("TINUOD", true),
+      //   left,
+      // );
       this.assertExpressionDataTypeMatching(left, right);
 
       left = {
@@ -570,7 +579,6 @@ export class Parser {
     ) {
       const operator = this.reader.eat()!.value;
       const right = this.parseMultiplicativeExpression();
-
       this.assertExpressionDataTypeMatching(left, right);
 
       left = {
@@ -597,7 +605,6 @@ export class Parser {
     ) {
       const operator = this.reader.eat()!.value;
       const right = this.parseLogicalUnaryExpression();
-
       this.assertExpressionDataTypeMatching(left, right);
 
       left = {
@@ -606,7 +613,7 @@ export class Parser {
         operator,
         left,
         right,
-      } as Expression;
+      } as BinaryExpression;
     }
 
     return left;
