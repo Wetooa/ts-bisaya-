@@ -178,4 +178,92 @@ SUGOD
 KATAPUSAN
 `;
 
+input = `
+SUGOD
+	MUGNA NUMERO a = 1
+KATAPUSAN
+SUGOD
+`;
+
+input = `
+SUGOD
+	MUGNA NUMERO a = 1
+KATAPUSAN
+--this is a comment
+`;
+
+input = `
+SUGOD
+	MUGNA NUMERO a, b = -4
+	IPAKITA: a + b
+KATAPUSAN
+`;
+
+input = `
+SUGOD
+	MUGNA NUMERO a = -6, b
+	DAWAT: b
+	MUGNA NUMERO c
+	c = a - b
+	IPAKITA: c
+KATAPUSAN
+`;
+
+input = `
+SUGOD
+	MUGNA NUMERO x = 3, z
+	DAWAT: z
+	MUGNA TINUOD t="OO"
+	IPAKITA: [-] & [&] & x + 5 & [*] & z & [']
+KATAPUSAN
+`;
+
+input = `
+SUGOD
+    MUGNA NUMERO edad
+    DAWAT: edad
+    KUNG (edad >= 18)
+    PUNDOK{
+        KUNG (edad >= 60)
+        PUNDOK{
+            IPAKITA: "Senior"
+        }
+        KUNG WALA
+        PUNDOK{
+            IPAKITA: "Adult"
+        }
+    }
+    KUNG DILI (edad >= 13)
+    PUNDOK{
+        IPAKITA: "Teen"
+    }
+    KUNG DILI (edad >= 6)
+    PUNDOK{
+        IPAKITA: "Child"
+    }
+    KUNG WALA
+    PUNDOK{
+        IPAKITA: "Toddler"
+    }
+KATAPUSAN
+`;
+
+input = `
+SUGOD
+ 
+  MUGNA NUMERO x, y
+  DAWAT: x
+ 
+  ALANG SA (y = 0, y <= x, y++) 
+  PUNDOK {
+ 
+    KUNG (y > 5)
+    PUNDOK {
+      IPAKITA: y
+    }
+ 
+  }
+KATAPUSAN
+`;
+
 run(input, false, false);
