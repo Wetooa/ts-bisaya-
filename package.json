@@ -14,7 +14,10 @@
     "repl": "bun run src/repl.ts",
     "gui": "bun run src/gui.ts",
     "test": "bun test",
-    "dev": "bun --watch src/index.ts"
+    "dev": "bun --watch src/index.ts",
+    "server": "bun run src/server.ts",
+    "web:dev": "cd web && pnpm dev",
+    "web:build": "cd web && pnpm build"
   },
   "dependencies": {
     "@types/readline-sync": "^1.4.8",

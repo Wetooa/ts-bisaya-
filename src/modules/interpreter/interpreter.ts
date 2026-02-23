@@ -33,17 +33,22 @@ export class Interpreter {
   private output: string;
   private line: number;
   private program?: Program;
+  private stdinLines: string[];
 
-  constructor() {
+  constructor(stdinLines: string[] = []) {
     this.variables = new Map();
     this.output = "";
     this.line = 0;
+    this.stdinLines = [...stdinLines];
   }
 
-  public interpret(program: Program): string {
+  public interpret(program: Program, stdinLines?: string[]): string {
     this.output = "";
     this.line = 0;
     this.program = program;
+    if (stdinLines !== undefined) {
+      this.stdinLines = [...stdinLines];
+    }
     this.executeStatements(this.program.body);
     return this.output;
   }
@@ -127,7 +132,11 @@ export class Interpreter {
   }
 
   private executeInputStatement(statement: InputStatement) {
-    let inputValue = readlineSync.question("").split(",");
+    const rawLine =
+      this.stdinLines.length > 0
+        ? this.stdinLines.shift()!
+        : readlineSync.question("");
+    let inputValue = rawLine.split(",");
     inputValue = inputValue.map((value) => value.trim());
 
     if (inputValue.length < statement.variables.length) {
