@@ -3,7 +3,6 @@ SUGOD
   MUGNA TINUOD q = "OO"
   q = DILI q
   IPAKITA: q
-  DAWAT: c
   d=(3+4) *c
   IPAKITA: d
 KATAPUSAN
