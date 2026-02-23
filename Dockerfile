@@ -1,7 +1,7 @@
 # ── Stage 1: Build the React frontend ──────────────────────────────────────
 FROM oven/bun:1 AS frontend-builder
 
-RUN npm install -g pnpm
+RUN bun install -g pnpm
 
 WORKDIR /app/web
 
@@ -14,7 +14,7 @@ RUN pnpm build
 # ── Stage 2: Production image ───────────────────────────────────────────────
 FROM oven/bun:1
 
-RUN npm install -g pnpm
+RUN bun install -g pnpm
 
 WORKDIR /app
 
